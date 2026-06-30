@@ -585,7 +585,7 @@ function TP_GPS()
     local gps_address = nil
     for i, v in ipairs(r) do
         local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
-        if test \~= 0 then 
+        if test ~= 0 then 
             gps_address = v.address
             break 
         end
@@ -613,7 +613,7 @@ function TP_GPS()
             {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}  
         })
 
-        if atual[1].value \~= 0 and atual[2].value \~= 0 then
+        if atual[1].value ~= 0 and atual[2].value ~= 0 then
             gg.setValues({
                 {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
                 {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
