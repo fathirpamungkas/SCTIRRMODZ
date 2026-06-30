@@ -563,22 +563,29 @@ end
 -- ==========================================
 -- FUNÇÃO TELEPORTE GPS
 -- ==========================================
+-- ==========================================
+-- FUNÇÃO TELEPORTE GPS (Menggunakan buscarBasePlayer)
+-- ==========================================
 function TP_GPS()
-    if not addrX and not buscarBasePlayer() then return end
+    if not addrX and not buscarBasePlayer() then 
+        gg.toast("❌ Base player tidak ditemukan!")
+        return 
+    end
+    
     gg.clearResults()
     gg.setRanges(gg.REGION_C_BSS)
     gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
     local r = gg.getResults(100)
 
     if #r == 0 then
-        gg.toast("❌ Tandai tujuan di peta terlebih dahulu.!")
+        gg.toast("❌ Tandai tujuan di peta terlebih dahulu!")
         return
     end
 
     local gps_address = nil
     for i, v in ipairs(r) do
         local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
-        if test ~= 0 then 
+        if test \~= 0 then 
             gps_address = v.address
             break 
         end
@@ -606,7 +613,7 @@ function TP_GPS()
             {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}  
         })
 
-        if atual[1].value ~= 0 and atual[2].value ~= 0 then
+        if atual[1].value \~= 0 and atual[2].value \~= 0 then
             gg.setValues({
                 {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
                 {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
