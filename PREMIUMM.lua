@@ -563,9 +563,6 @@ end
 -- ==========================================
 -- FUNÇÃO TELEPORTE GPS
 -- ==========================================
--- ==========================================
--- FUNÇÃO TELEPORTE GPS (Menggunakan buscarBasePlayer)
--- ==========================================
 function TP_GPS()
     if not addrX and not buscarBasePlayer() then 
         gg.toast("❌ Base player tidak ditemukan!")
@@ -585,14 +582,17 @@ function TP_GPS()
     local gps_address = nil
     for i, v in ipairs(r) do
         local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
-        if test ~= 0 then 
+        if test == 0 then 
+            -- skip
+        else
             gps_address = v.address
             break 
         end
     end
 
     if not gps_address then 
-        return gg.toast("❌ GPS tidak ditemukan atau tidak valid") 
+        gg.toast("❌ GPS tidak ditemukan atau tidak valid") 
+        return
     end
 
     local gpsAtivo = true
@@ -613,12 +613,17 @@ function TP_GPS()
             {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}  
         })
 
-        if atual[1].value ~= 0 and atual[2].value ~= 0 then
-            gg.setValues({
-                {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
-                {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
-                {address = addrZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
-            })
+        if atual[1].value \~= 0 and atual[2].value \~= 0 then  -- ini masih ada, tunggu
+            -- Perbaikan:
+            if atual[1].value == 0 or atual[2].value == 0 then
+                -- skip
+            else
+                gg.setValues({
+                    {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                    {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                    {address = addrZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
+                })
+            end
         end
         gg.sleep(300)
     end
