@@ -171,6 +171,15 @@ local playerObtido_Onibus = false
 local onibusObtido = false
 local checkpointObtido = false
 
+local GPS = {
+    qword = "8534161175060509200",
+    offX = 0x20,
+    offZ = 0x1C,
+    offY = 0x18,
+    address = nil,
+    running = false
+}
+
 local PRIMEIRA_BUSCA = "-333.24081420898;-1277.98217773438;10.36108493805"
 local SEGUNDA_BUSCA = '"-750.6337890625;-1311.76403808594;18.96370315552"'
 
@@ -439,7 +448,7 @@ end
 -- SISTEMA: SAIR DA PRISÃO
 -- ==========================================
 function sairDaPrisaoBot()
-    if not addrZ and not buscarBasePlayer() then return end
+    if not addrZ and not encontrarBase() then return end
 
     local x1, y1, z1 = 1140.140, 2159.920, 1752.780   
     local x2, y2, z2 = -2797.580, 32.894, -16.028     
@@ -554,17 +563,8 @@ end
 -- ==========================================
 -- FUNÇÃO TELEPORTE GPS
 -- ==========================================
-local GPS = {
-    qword = "8534161175060509200",
-    offX = 0x20,
-    offZ = 0x1C,
-    offY = 0x18,
-    address = nil,
-    running = false
-}
-
 function TP_GPS()
-    if not addrX and not buscarBasePlayer() then return end
+    if not addrX and not encontrarBase() then return end
     gg.clearResults()
     gg.setRanges(gg.REGION_C_BSS)
     gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
@@ -621,7 +621,7 @@ end
 -- FUNÇÕES FARM FAZENDA E MINA
 -- ==========================================
 function farmFazendaBot()
-    if not addrZ and not buscarBasePlayer() then return end
+    if not addrZ and not encontrarBase() then return end
     
     local checkpointsSalvos = {}
     local maxCheckpoints = 7
@@ -720,7 +720,7 @@ local checkpointsMina = {
 }
 
 function farmMinaBot()
-    if not addrZ and not buscarBasePlayer() then return end
+    if not addrZ and not encontrarBase() then return end
     local farmMinaAtivo = true
     local cp = 1
     gg.toast("⛏️ MEMULAI MENAMBANG")
@@ -769,7 +769,7 @@ end
 -- ==========================================
 function inicializarPlayerOnibus()
     if not addrZ then
-        if not buscarBasePlayer() then return false end
+        if not encontrarBase() then return false end
     end
     playerObtido_Onibus = true
     gg.toast("✅ Pemain diinisialisasi untuk bus")
@@ -913,7 +913,7 @@ end
 
 function teleportarPlayerOnibus(y, x, z, congelar)
     if not addrZ then
-        if not buscarBasePlayer() then return false end
+        if not encontrarBase() then return false end
     end
     
     local valoresPlayer = {
@@ -1001,7 +1001,7 @@ function teleportarParaCheckpoint_Onibus()
     end
     
     if not addrZ then
-        if not buscarBasePlayer() then return false end
+        if not encontrarBase() then return false end
     end
     
     local coordsAtuais = getCheckpointAtualizado_Onibus()
@@ -1513,35 +1513,43 @@ end
 -- ==========================================
 -- FUNÇÕES DE BUSCA
 -- ==========================================
-function buscarBasePlayer()
+function encontrarBase()
     if addrX and addrY and addrZ then return true end
     gg.clearResults()
+    gg.setRanges (gg.REGION_OTHER)
+    gg.toast("🔍 Mencari dasar kemampuan pemain...")
     gg.searchNumber(tostring(BASE), gg.TYPE_QWORD)
-    local r = gg.getResults(1000)
-    local check1, check2 = {}, {}
-    for i, v in ipairs(r) do
-        check1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
-        check2[i] = {address = v.address - 212, flags = gg.TYPE_QWORD}
+    local r = gg.getResults(3)
+    if #r == 0 then 
+        gg.toast("❌ Base tidak ditemukan") 
+        return false 
     end
-    check1 = gg.getValues(check1)
-    check2 = gg.getValues(check2)
-    for i = 1, #check1 do
-        if check1[i].value == -4411463732228264604 and check2[i].value == -4250292608395772511 then
-            local base = check1[i].address - 108
-            addrZ = base + OZ
-            addrX = base + OX
-            addrY = base + OY
-            gg.toast("✅ Pemain dimuat")
+
+    local c1, c2 = {}, {}
+    for i, v in ipairs(r) do
+        c1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
+        c2[i] = {address = v.address - 212, flags = gg.TYPE_QWORD}
+    end
+    c1 = gg.getValues(c1)
+    c2 = gg.getValues(c2)
+
+    for i = 1, #c1 do
+        if c1[i].value == -4411463732228264604 and c2[i].value == -4250292608395772511 then
+            ENDERECO_BASE = c1[i].address - 108
+            addrX = ENDERECO_BASE + OX
+            addrY = ENDERECO_BASE + OY
+            addrZ = ENDERECO_BASE + OZ
+            gg.toast("✅ Pemain berhasil terhubung!")
             return true
         end
     end
-    gg.toast("❌ Pemain tidak ditemukan")
+    gg.toast("❌ Kalibrasi dasar gagal.")
     return false
 end
 
 function TP(x, y, z)
     if not addrX or not addrY or not addrZ then
-        if not buscarBasePlayer() then return end
+        if not encontrarBase() then return end
     end
     gg.setValues({
         {address = addrX, value = x, flags = gg.TYPE_FLOAT},
@@ -1578,7 +1586,7 @@ end
 -- NOVO MOD: CAMINHAR 2M / ATRAVESSAR ILIMITADO
 -- ==========================================
 function modoToggleSpamIlimitado()
-    if not addrX and not buscarBasePlayer() then return end
+    if not addrX and not encontrarBase() then return end
     gg.toast("🔄 FUNGSI DIAKTIFKAN! GERAKKAN KARAKTERMU.. (BUKA GG UNTUK MENJEDA))")
     gg.setVisible(false)
     
@@ -1610,7 +1618,7 @@ end
 
 function getCurrentCoordinates()
     if not addrX or not addrY or not addrZ then
-        if not buscarBasePlayer() then
+        if not encontrarBase() then
             gg.toast("❌ BASE PLAYER TIDAK DITEMUKAN!")
             return nil
         end
@@ -1828,7 +1836,7 @@ function teleportToSavedPosition()
 
     local selected = savedPositions[choice]
 
-    if not addrZ and not buscarBasePlayer() then
+    if not addrZ and not encontrarBase() then
         gg.toast("❌ Base player tidak ditemukan!")
         return
     end
@@ -1856,7 +1864,7 @@ end
 -- ==========================================
 
 function teleportToPoint(point)
-    if not addrZ and not buscarBasePlayer() then
+    if not addrZ and not encontrarBase() then
         gg.toast("❌ Base player tidak ditemukan!")
         return false
     end
@@ -2054,7 +2062,7 @@ end
 -- ==========================================
 
 function teleportToSafePoint()
-    if not addrZ and not buscarBasePlayer() then
+    if not addrZ and not encontrarBase() then
         gg.toast("❌ Teleportasi tidak mungkin dilakukan.")
         return false
     end
@@ -2405,7 +2413,7 @@ gg.toast("🔍 MEMULAI PRELOAD CEPAT...")
 local baseLoaded = false
 for attempt = 1, 3 do
     gg.toast("🔄 Mencari Base Player... (" .. attempt .. "/3)")
-    if buscarBasePlayer() then
+    if encontrarBase() then
         baseLoaded = true
         break
     end
