@@ -554,6 +554,15 @@ end
 -- ==========================================
 -- FUNÇÃO TELEPORTE GPS
 -- ==========================================
+local GPS = {
+    qword = "8534161175060509200",
+    offX = 0x20,
+    offZ = 0x1C,
+    offY = 0x18,
+    address = nil,
+    running = false
+}
+
 function TP_GPS()
     if not addrX and not buscarBasePlayer() then return end
     gg.clearResults()
