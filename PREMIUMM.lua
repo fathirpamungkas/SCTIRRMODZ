@@ -582,8 +582,8 @@ function TP_GPS()
     local gps_address = nil
     for i, v in ipairs(r) do
         local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
-        if test == 0 then 
-            -- skip
+        if test == 0 then
+            -- nilai 0, skip
         else
             gps_address = v.address
             break 
@@ -613,17 +613,15 @@ function TP_GPS()
             {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}  
         })
 
-        if atual[1].value \~= 0 and atual[2].value \~= 0 then  -- ini masih ada, tunggu
-            -- Perbaikan:
-            if atual[1].value == 0 or atual[2].value == 0 then
-                -- skip
-            else
-                gg.setValues({
-                    {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
-                    {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
-                    {address = addrZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
-                })
-            end
+        -- Pengecekan tanpa \~=
+        if atual[1].value == 0 or atual[2].value == 0 then
+            -- skip jika ada yang 0
+        else
+            gg.setValues({
+                {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
+            })
         end
         gg.sleep(300)
     end
