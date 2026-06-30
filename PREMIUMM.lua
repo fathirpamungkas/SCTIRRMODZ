@@ -71,6 +71,13 @@ local senhasValidas = {
         criado = "01/01/2026 H00:00", 
         ano = 2026, mes = 6, dia = 30, hora = 00, min = 00
     },
+    -- =======================================================  
+ ["HAMZ"] = {
+        usuario = "PREMIUM", 
+        dispositivos = "1", 
+        criado = "01/01/2026 H00:00", 
+        ano = 2026, mes = 7, dia = 1, hora = 00, min = 00
+    },
  -- =======================================================
   ["ROXIO"] = {
         usuario = "KELUARGA", 
