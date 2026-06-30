@@ -448,7 +448,7 @@ end
 -- SISTEMA: SAIR DA PRISÃO
 -- ==========================================
 function sairDaPrisaoBot()
-    if not addrZ and not encontrarBase() then return end
+    if not addrZ and not buscarBasePlayer() then return end
 
     local x1, y1, z1 = 1140.140, 2159.920, 1752.780   
     local x2, y2, z2 = -2797.580, 32.894, -16.028     
@@ -564,7 +564,7 @@ end
 -- FUNÇÃO TELEPORTE GPS
 -- ==========================================
 function TP_GPS()
-    if not addrX and not encontrarBase() then return end
+    if not addrX and not buscarBasePlayer() then return end
     gg.clearResults()
     gg.setRanges(gg.REGION_C_BSS)
     gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
@@ -621,7 +621,7 @@ end
 -- FUNÇÕES FARM FAZENDA E MINA
 -- ==========================================
 function farmFazendaBot()
-    if not addrZ and not encontrarBase() then return end
+    if not addrZ and not buscarBasePlayer() then return end
     
     local checkpointsSalvos = {}
     local maxCheckpoints = 7
@@ -720,7 +720,7 @@ local checkpointsMina = {
 }
 
 function farmMinaBot()
-    if not addrZ and not encontrarBase() then return end
+    if not addrZ and not buscarBasePlayer() then return end
     local farmMinaAtivo = true
     local cp = 1
     gg.toast("⛏️ MEMULAI MENAMBANG")
@@ -769,7 +769,7 @@ end
 -- ==========================================
 function inicializarPlayerOnibus()
     if not addrZ then
-        if not encontrarBase() then return false end
+        if not buscarBasePlayer() then return false end
     end
     playerObtido_Onibus = true
     gg.toast("✅ Pemain diinisialisasi untuk bus")
@@ -913,7 +913,7 @@ end
 
 function teleportarPlayerOnibus(y, x, z, congelar)
     if not addrZ then
-        if not encontrarBase() then return false end
+        if not buscarBasePlayer() then return false end
     end
     
     local valoresPlayer = {
@@ -1001,7 +1001,7 @@ function teleportarParaCheckpoint_Onibus()
     end
     
     if not addrZ then
-        if not encontrarBase() then return false end
+        if not buscarBasePlayer() then return false end
     end
     
     local coordsAtuais = getCheckpointAtualizado_Onibus()
@@ -1513,43 +1513,35 @@ end
 -- ==========================================
 -- FUNÇÕES DE BUSCA
 -- ==========================================
-function encontrarBase()
+function buscarBasePlayer()
     if addrX and addrY and addrZ then return true end
     gg.clearResults()
-    gg.setRanges(gg.REGION_OTHER)
-    gg.toast("🔍 Mencari base pemain...")
     gg.searchNumber(tostring(BASE), gg.TYPE_QWORD)
-    local r = gg.getResults(3)
-    if #r == 0 then 
-        gg.toast("❌ Base tidak ditemukan") 
-        return false 
-    end
-
-    local c1, c2 = {}, {}
+    local r = gg.getResults(1000)
+    local check1, check2 = {}, {}
     for i, v in ipairs(r) do
-        c1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
-        c2[i] = {address = v.address - 212, flags = gg.TYPE_QWORD}
+        check1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
+        check2[i] = {address = v.address - 212, flags = gg.TYPE_QWORD}
     end
-    c1 = gg.getValues(c1)
-    c2 = gg.getValues(c2)
-
-    for i = 1, #c1 do
-        if c1[i].value == -4411463732228264604 and c2[i].value == -4250292608395772511 then
-            ENDERECO_BASE = c1[i].address - 108
-            addrX = ENDERECO_BASE + OX
-            addrY = ENDERECO_BASE + OY
-            addrZ = ENDERECO_BASE + OZ
-            gg.toast("✅ Base pemain berhasil ditemukan!")
+    check1 = gg.getValues(check1)
+    check2 = gg.getValues(check2)
+    for i = 1, #check1 do
+        if check1[i].value == -4411463732228264604 and check2[i].value == -4250292608395772511 then
+            local base = check1[i].address - 108
+            addrZ = base + OZ
+            addrX = base + OX
+            addrY = base + OY
+            gg.toast("✅ Pemain dimuat")
             return true
         end
     end
-    gg.toast("❌ Gagal mengkalibrasi base")
+    gg.toast("❌ Pemain tidak ditemukan")
     return false
 end
 
 function TP(x, y, z)
     if not addrX or not addrY or not addrZ then
-        if not encontrarBase() then return end
+        if not buscarBasePlayer() then return end
     end
     gg.setValues({
         {address = addrX, value = x, flags = gg.TYPE_FLOAT},
@@ -1586,7 +1578,7 @@ end
 -- NOVO MOD: CAMINHAR 2M / ATRAVESSAR ILIMITADO
 -- ==========================================
 function modoToggleSpamIlimitado()
-    if not addrX and not encontrarBase() then return end
+    if not addrX and not buscarBasePlayer() then return end
     gg.toast("🔄 FUNGSI DIAKTIFKAN! GERAKKAN KARAKTERMU.. (BUKA GG UNTUK MENJEDA))")
     gg.setVisible(false)
     
@@ -1618,7 +1610,7 @@ end
 
 function getCurrentCoordinates()
     if not addrX or not addrY or not addrZ then
-        if not encontrarBase() then
+        if not buscarBasePlayer() then
             gg.toast("❌ BASE PLAYER TIDAK DITEMUKAN!")
             return nil
         end
@@ -1836,7 +1828,7 @@ function teleportToSavedPosition()
 
     local selected = savedPositions[choice]
 
-    if not addrZ and not encontrarBase() then
+    if not addrZ and not buscarBasePlayer() then
         gg.toast("❌ Base player tidak ditemukan!")
         return
     end
@@ -1864,7 +1856,7 @@ end
 -- ==========================================
 
 function teleportToPoint(point)
-    if not addrZ and not encontrarBase() then
+    if not addrZ and not buscarBasePlayer() then
         gg.toast("❌ Base player tidak ditemukan!")
         return false
     end
@@ -2062,7 +2054,7 @@ end
 -- ==========================================
 
 function teleportToSafePoint()
-    if not addrZ and not encontrarBase() then
+    if not addrZ and not buscarBasePlayer() then
         gg.toast("❌ Teleportasi tidak mungkin dilakukan.")
         return false
     end
@@ -2413,7 +2405,7 @@ gg.toast("🔍 MEMULAI PRELOAD CEPAT...")
 local baseLoaded = false
 for attempt = 1, 3 do
     gg.toast("🔄 Mencari Base Player... (" .. attempt .. "/3)")
-    if encontrarBase() then
+    if buscarBasePlayer() then
         baseLoaded = true
         break
     end
