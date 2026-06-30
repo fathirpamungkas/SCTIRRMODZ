@@ -1516,8 +1516,8 @@ end
 function encontrarBase()
     if addrX and addrY and addrZ then return true end
     gg.clearResults()
-    gg.setRanges (gg.REGION_OTHER)
-    gg.toast("🔍 Mencari dasar kemampuan pemain...")
+    gg.setRanges(gg.REGION_OTHER)
+    gg.toast("🔍 Mencari base pemain...")
     gg.searchNumber(tostring(BASE), gg.TYPE_QWORD)
     local r = gg.getResults(3)
     if #r == 0 then 
@@ -1539,11 +1539,11 @@ function encontrarBase()
             addrX = ENDERECO_BASE + OX
             addrY = ENDERECO_BASE + OY
             addrZ = ENDERECO_BASE + OZ
-            gg.toast("✅ Pemain berhasil terhubung!")
+            gg.toast("✅ Base pemain berhasil ditemukan!")
             return true
         end
     end
-    gg.toast("❌ Kalibrasi dasar gagal.")
+    gg.toast("❌ Gagal mengkalibrasi base")
     return false
 end
 
