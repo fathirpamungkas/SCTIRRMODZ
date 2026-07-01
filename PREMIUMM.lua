@@ -1604,22 +1604,394 @@ function menuOnibusIntegrado()
     end
 end
 
+
 -- ==========================================
--- 🆕 MENU FARM ATUALIZADO
+-- VARIABEL AUTO PIZZA (GPS BASED)
 -- ==========================================
+local enderecosY_Pizza = {}
+local enderecosCompletos_Pizza = {}
+local farmPizzaAtivo = false
+local playerObtido_Pizza = false
+local pizzaObtido = false
+
+-- ==========================================
+-- FUNGSI GPS UNTUK AUTO PIZZA
+-- ==========================================
+
+function getGPSPosition_Pizza()
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+    local r = gg.getResults(100)
+
+    if #r == 0 then
+        gg.toast("❌ Tandai tujuan di peta terlebih dahulu!")
+        return nil
+    end
+
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
+        if test ~= 0 then
+            gps_address = v.address
+            break 
+        end
+    end
+
+    if not gps_address then 
+        gg.toast("❌ GPS tidak ditemukan atau tidak valid") 
+        return nil
+    end
+
+    local gpsCoords = gg.getValues({
+        {address = gps_address - 0x14, flags = gg.TYPE_FLOAT}, 
+        {address = gps_address - 0x10, flags = gg.TYPE_FLOAT}, 
+        {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}  
+    })
+
+    if gpsCoords[1].value == 0 or gpsCoords[2].value == 0 then
+        return nil
+    end
+
+    return {
+        y = gpsCoords[1].value,
+        x = gpsCoords[2].value,
+        z = gpsCoords[3].value
+    }
+end
+
+function getCurrentPosition_Pizza()
+    if not addrZ then
+        if not buscarBasePlayer() then return nil end
+    end
+    
+    local pos = gg.getValues({
+        {address = addrX, flags = gg.TYPE_FLOAT},
+        {address = addrY, flags = gg.TYPE_FLOAT},
+        {address = addrZ, flags = gg.TYPE_FLOAT}
+    })
+    
+    return {
+        x = pos[1].value,
+        y = pos[2].value,
+        z = pos[3].value
+    }
+end
+
+-- ==========================================
+-- FUNÇÕES AUTO PIZZA (GPS BASED)
+-- ==========================================
+
+function inicializarPlayerPizza()
+    if not addrZ then
+        if not buscarBasePlayer() then return false end
+    end
+    playerObtido_Pizza = true
+    gg.toast("✅ Pemain diinisialisasi untuk Auto Pizza")
+    return true
+end
+
+function pesquisarEnderecosKendaraan_Pizza()
+    gg.clearResults()
+    gg.toast("🔍 Mencari alamat kendaraan untuk Pizza...")
+    
+    -- Mencari koordinat Z kendaraan
+    gg.searchNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.sleep(500)
+    
+    local resultadosIniciais = gg.getResults(200)
+    if #resultadosIniciais == 0 then
+        gg.toast("❌ Tidak ada alamat kendaraan ditemukan!")
+        gg.clearResults()
+        return false
+    end
+    
+    gg.toast("🚶 Gerakkan karakter Anda...")
+    gg.sleep(3000)
+    
+    gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.toast("🚶 Gerakkan karakter lagi...")
+    gg.sleep(2000)
+    gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.toast("🚗 Masuk ke kendaraan (mobil/motor)...")
+    gg.sleep(2000)
+    gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.toast("⏳ Tunggu 10 detik...")
+    gg.sleep(10000)
+    gg.refineNumber("-255~-230", gg.TYPE_FLOAT)
+    
+    local resultadosFiltrados = gg.getResults(100)
+    if #resultadosFiltrados > 0 then
+        enderecosY_Pizza = {}
+        enderecosCompletos_Pizza = {}
+        
+        for i, resultado in ipairs(resultadosFiltrados) do
+            local yAddr = resultado.address
+            enderecosY_Pizza[i] = yAddr
+            enderecosCompletos_Pizza[i] = {
+                y = yAddr,
+                x = yAddr + 4,
+                z = yAddr + 8
+            }
+        end
+        
+        gg.toast(string.format("✅ %d alamat kendaraan tersimpan!", #enderecosY_Pizza))
+        pizzaObtido = true
+        gg.clearResults()
+        return true
+    else
+        gg.toast("❌ Tidak ada alamat ditemukan!")
+        gg.clearResults()
+        return false
+    end
+end
+
+function teleportarKendaraanPizza(y, x, z)
+    if #enderecosY_Pizza == 0 then return false end
+    
+    local valoresTeleporte = {}
+    local index = 1
+    
+    for i, yAddr in ipairs(enderecosY_Pizza) do
+        valoresTeleporte[index] = {address = yAddr, flags = gg.TYPE_FLOAT, value = y, freeze = false}
+        index = index + 1
+        valoresTeleporte[index] = {address = yAddr + 4, flags = gg.TYPE_FLOAT, value = x, freeze = false}
+        index = index + 1
+        valoresTeleporte[index] = {address = yAddr + 8, flags = gg.TYPE_FLOAT, value = z, freeze = false}
+        index = index + 1
+    end
+    
+    gg.setValues(valoresTeleporte)
+    return true
+end
+
+function teleportarPlayerPizza(y, x, z)
+    if not addrZ then
+        if not buscarBasePlayer() then return false end
+    end
+    
+    gg.setValues({
+        {address = addrX, flags = gg.TYPE_FLOAT, value = x},
+        {address = addrY, flags = gg.TYPE_FLOAT, value = y},
+        {address = addrZ, flags = gg.TYPE_FLOAT, value = z}
+    })
+    
+    return true
+end
+
+function teleportarPizzaCompleto(y, x, z)
+    local kendaraanOk = teleportarKendaraanPizza(y, x, z)
+    local playerOk = teleportarPlayerPizza(y, x, z)
+    
+    if kendaraanOk and playerOk then
+        return true
+    else
+        return false
+    end
+end
+
+function calcularDistanciaPizza(pos1, pos2)
+    local dx = pos2.x - pos1.x
+    local dy = pos2.y - pos1.y
+    local dz = pos2.z - pos1.z
+    return math.sqrt(dx*dx + dy*dy + dz*dz)
+end
+
+function farmPizzaGPS()
+    if #enderecosY_Pizza == 0 then
+        gg.toast("⚠️ Belum ada alamat kendaraan! Cari dulu!")
+        return false
+    end
+    
+    if farmPizzaAtivo then
+        gg.toast("⏸️ Auto Pizza sudah berjalan!")
+        return false
+    end
+    
+    farmPizzaAtivo = true
+    
+    local lastGPS = nil
+    local sameGPSCount = 0
+    local deliveryCount = 0
+    local isReturning = false
+    
+    gg.toast("🍕 AUTO PIZZA GPS DIMULAI!")
+    gg.toast("📍 Tandai tujuan di PETA terlebih dahulu!")
+    
+    while farmPizzaAtivo do
+        -- Cek apakah GG dibuka untuk stop
+        if gg.isVisible(true) then
+            gg.setVisible(false)
+            local stop = gg.alert("🍕 AUTO PIZZA AKTIF", "🛑 HENTIKAN", "LANJUTKAN")
+            if stop == 1 then
+                farmPizzaAtivo = false
+                gg.toast("⏹️ Auto Pizza dihentikan!")
+                break
+            end
+        end
+        
+        -- Ambil posisi GPS dari marker di peta
+        local gpsPos = getGPSPosition_Pizza()
+        
+        if gpsPos then
+            -- Ambil posisi player saat ini
+            local currentPos = getCurrentPosition_Pizza()
+            
+            if currentPos then
+                local distance = calcularDistanciaPizza(currentPos, gpsPos)
+                
+                -- Jika sudah sampai di tujuan
+                if distance < 3.0 then
+                    if not isReturning then
+                        -- Selesai antar pizza
+                        deliveryCount = deliveryCount + 1
+                        gg.toast(string.format("🍕 Pizza #%d TERKIRIM! Kembali ke tempat pizza...", deliveryCount))
+                        isReturning = true
+                        
+                        -- Kembali ke titik awal (tempat pizza)
+                        -- Teleport ke koordinat awal pizza
+                        gg.toast("🔄 Mencari titik awal pizza...")
+                        gg.sleep(1000)
+                        
+                        -- Ambil posisi GPS untuk kembali (tandai di peta)
+                        local returnPos = getGPSPosition_Pizza()
+                        if returnPos then
+                            teleportarPizzaCompleto(returnPos.y, returnPos.x, returnPos.z)
+                            gg.sleep(1500)
+                        end
+                    else
+                        -- Sudah kembali ke tempat pizza
+                        gg.toast("🍕 Siap mengambil pizza baru!")
+                        isReturning = false
+                        sameGPSCount = 0
+                        gg.sleep(1000)
+                    end
+                else
+                    -- Masih dalam perjalanan
+                    -- Gerakkan kendaraan perlahan menuju GPS
+                    local speed = 5.0
+                    local dx = gpsPos.x - currentPos.x
+                    local dy = gpsPos.y - currentPos.y
+                    local dz = gpsPos.z - currentPos.z
+                    local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+                    
+                    if dist > 0 then
+                        local stepX = currentPos.x + (dx / dist) * speed
+                        local stepY = currentPos.y + (dy / dist) * speed
+                        local stepZ = currentPos.z + (dz / dist) * speed
+                        
+                        teleportarPizzaCompleto(stepY, stepX, stepZ)
+                    end
+                end
+            end
+        else
+            -- GPS tidak ditemukan
+            if not isReturning then
+                gg.toast("📍 Tandai tujuan di PETA! Menunggu GPS...")
+            end
+            gg.sleep(500)
+        end
+        
+        gg.sleep(100)
+    end
+    
+    farmPizzaAtivo = false
+    gg.toast(string.format("⏹️ Auto Pizza selesai! Total antar: %d pizza", deliveryCount))
+    return true
+end
+
+function pararFarmPizza()
+    if farmPizzaAtivo then
+        farmPizzaAtivo = false
+        gg.toast("⏹️ Auto Pizza dihentikan!")
+    else
+        gg.toast("📴 Auto Pizza tidak berjalan.")
+    end
+end
+
+function menuPizzaGPS()
+    local opcoes = {}
+    
+    if not playerObtido_Pizza then
+        table.insert(opcoes, "🔍 1. DAPATKAN POSISI PEMAIN")
+    end
+    
+    if not pizzaObtido then
+        table.insert(opcoes, "🚗 2. DAPATKAN POSISI KENDARAAN")
+    end
+    
+    if playerObtido_Pizza and pizzaObtido then
+        table.insert(opcoes, "🍕 3. MULAI AUTO PIZZA (GPS)")
+    end
+    
+    if farmPizzaAtivo then
+        table.insert(opcoes, "⏹️ 4. HENTIKAN AUTO PIZZA")
+    end
+    
+    table.insert(opcoes, "🔙 5. KEMBALI KE MENU UTAMA")
+    
+    local opcao = gg.choice(opcoes, nil, "🍕 MENU AUTO PIZZA GPS 🍕")
+    
+    if opcao == nil then return end
+    
+    local idx = 1
+    
+    if not playerObtido_Pizza then
+        if opcao == idx then
+            inicializarPlayerPizza()
+            return
+        end
+        idx = idx + 1
+    end
+    
+    if not pizzaObtido then
+        if opcao == idx then
+            pesquisarEnderecosKendaraan_Pizza()
+            return
+        end
+        idx = idx + 1
+    end
+    
+    if playerObtido_Pizza and pizzaObtido then
+        if opcao == idx then
+            farmPizzaGPS()
+            return
+        end
+        idx = idx + 1
+    end
+    
+    if farmPizzaAtivo and opcao == idx then
+        pararFarmPizza()
+        return
+    elseif farmPizzaAtivo then
+        idx = idx + 1
+    end
+    
+    if opcao == idx then
+        menu_principal()
+    end
+end
+
+-- ==========================================
+-- UPDATE MENU FARM
+-- ==========================================
+
 function menuFarm()
     local escolha = gg.choice({
         "🌾 AUTO TANI",
         "⛏️ AUTO TAMBANG",
-        "⛏️ AUTO TAMBANG ( INSTANT )",
+        "⛏️ AUTO TAMBANG (INSTANT)",
         "🚌 AUTO BUS",
+        "🍕 AUTO PIZZA (GPS)",  -- <-- MENU BARU
         "◀️ KEMBALI"
     }, nil, "🚀 AUTO PILOT KERJA")
+    
     if escolha == 1 then farmFazendaBot()
     elseif escolha == 2 then farmMinaBot()
     elseif escolha == 3 then farmMinaTPCorrigido()
     elseif escolha == 4 then menuOnibusIntegrado()
-    elseif escolha == 5 then menu_principal()
+    elseif escolha == 5 then menuPizzaGPS()  -- <-- PANGGIL MENU PIZZA
+    elseif escolha == 6 then menu_principal()
     end
 end
 
