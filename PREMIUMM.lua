@@ -447,7 +447,6 @@ function MenuPremium2()
     elseif escolha == 4 then esticada()
     elseif escolha == 5 then modoToggleSpamIlimitado()
     elseif escolha == 6 then menu_principal()
-        return
     end
 end
 
@@ -1271,7 +1270,6 @@ function menuFarm()
     if escolha == 1 then farmFazendaBot()
     elseif escolha == 2 then farmMinaBot()
     elseif escolha == 3 then menuOnibusIntegrado()
-        return
     end
 end
 
@@ -1284,7 +1282,6 @@ function autoRun()
     if escolha == 1 then Sprint()
     elseif escolha == 2 then sairDaPrisaoBot()
     elseif escolha == 3 then MenuPremium2()
-        return
     end
 end
 
@@ -1320,7 +1317,6 @@ function menuTeleporte()
             local destino = locais[subEscolha]
             TP(destino[2], destino[3], destino[4])
         end
-        return
     end
 end
 -- ==========================================
@@ -1445,9 +1441,7 @@ function menuSpeed()
   if sMenu == 1 then menuSpeedLari()
   elseif sMenu == 2 then menuSpeedJongkok()
   elseif sMenu == 3 then menuSuperLompatan()
-  elseif sMenu == 4 then menu_principal() 
-  return
-  end
+  elseif sMenu == 4 then menu_principal() end
 end
 
 function menuSpeedLari()
@@ -1463,9 +1457,7 @@ function menuSpeedLari()
   elseif fMenu == 2 then ativarspeed(4)
   elseif fMenu == 3 then ativarspeed(8)
   elseif fMenu == 4 then ativarspeed(1)
-  elseif fMenu == 5 then menuSpeed()
-    return
-  end
+  elseif fMenu == 5 then menuSpeed() end
 end
 
 function menuSpeedJongkok()
@@ -1481,9 +1473,7 @@ function menuSpeedJongkok()
   elseif jMenu == 2 then ativarspeedagachado(4)
   elseif jMenu == 3 then ativarspeedagachado(8)
   elseif jMenu == 4 then ativarspeedagachado(1)
-  elseif jMenu == 5 then menuSpeed()
-    return
-  end
+  elseif jMenu == 5 then menuSpeed() end
 end
 
 function menuSuperLompatan()
@@ -1499,9 +1489,7 @@ function menuSuperLompatan()
   elseif lMenu == 2 then ativarSuperPulo(4)
   elseif lMenu == 3 then ativarSuperPulo(8)
   elseif lMenu == 4 then ativarSuperPulo(1)
-  elseif lMenu == 5 then menuSpeed()
-     return
-  end
+  elseif lMenu == 5 then menuSpeed() end
 end
 
 function ativarspeedagachado(velocidadespeed)
@@ -2224,7 +2212,6 @@ function menu_principal()
         mostrarCriadores()
         elseif mainMenu == 6 then
         sair()
-        return
     end
 end
 
@@ -2244,7 +2231,6 @@ function menuPlayerGZ()
         MenuPremium2()
     elseif h == 4 then
         menu_principal()
-        return
     end
 end
 
@@ -2264,7 +2250,6 @@ function menuTeleportInstan()
         menuManual()
     elseif instan == 4 then
         menu_principal()
-        return
     end
 end
 
@@ -2311,7 +2296,6 @@ function teleport_1()
         mostrarCriadores()
     elseif teleport == 13 then
         menu_principal()
-        return
     end
 end
 
@@ -2347,7 +2331,6 @@ function menuManual()
         mostrarCriadores()
     elseif manual == 9 then
         menu_principal()
-        return
     end
 end
 -- ==========================================
@@ -2475,7 +2458,6 @@ function menuImortalidade()
         end
     elseif m == 10 then 
         menu_principal() 
-        return
     end
 end
 
