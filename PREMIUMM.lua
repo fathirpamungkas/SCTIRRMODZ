@@ -447,6 +447,7 @@ function MenuPremium2()
     elseif escolha == 4 then esticada()
     elseif escolha == 5 then modoToggleSpamIlimitado()
     elseif escolha == 6 then menu_principal()
+        return
     end
 end
 
@@ -537,32 +538,85 @@ end
 -- ==========================================
 -- 🆕 FUNÇÃO ACELERA GAMER (SPEED HACK MODERNO)
 -- ==========================================
-function SpeedHackGamer()
+local activeSpeed = false
+local savedAddr = nil
+local savedValue = nil
+local speedGamerValue = 1.0
+
+function SpeedHackGamer(customSpeed)
     gg.clearResults()
+    
     if not activeSpeed then
-        local input = gg.prompt({"Kecepatan (1-20):"}, {selectedSpeed}, {"number"})
-        if input then 
-            selectedSpeed = tonumber(input[1]) 
-            if selectedSpeed < 1 then selectedSpeed = 1 end
-            if selectedSpeed > 20 then selectedSpeed = 20 end
+        -- Jika customSpeed tidak dikirim, pakai prompt
+        if not customSpeed then
+            local input = gg.prompt({"Masukkan Kecepatan (1-20):"}, {speedGamerValue}, {"number"})
+            if not input then return end
+            customSpeed = tonumber(input[1])
         end
+        
+        if customSpeed < 1 then customSpeed = 1 end
+        if customSpeed > 20 then customSpeed = 20 end
+        
         gg.searchNumber("9187343240761165228", gg.TYPE_QWORD)
         local results = gg.getResults(1)
+        
         if #results == 0 then 
-            gg.alert("❌ Nilai dasar tidak ditemukan..") 
+            gg.alert("❌ Nilai dasar tidak ditemukan!")
             return 
         end
+        
         savedAddr = results[1].address
         savedValue = gg.getValues({{address = savedAddr, flags = gg.TYPE_QWORD}})[1].value
-        gg.setValues({{address = savedAddr, flags = gg.TYPE_FLOAT, value = selectedSpeed}})
+        
+        gg.setValues({{address = savedAddr, flags = gg.TYPE_FLOAT, value = customSpeed}})
+        
         activeSpeed = true
-        gg.toast("🕹️ Kecepatan Di Aktifkan - " .. selectedSpeed .. "x")
+        speedGamerValue = customSpeed
+        gg.toast("🕹️ Speed Diaktifkan → " .. customSpeed .. "x", true)
+        
     else
+        -- Matikan speed
         if savedAddr then 
-            gg.setValues({{address = savedAddr, flags = gg.TYPE_QWORD, value = savedValue}}) 
+            gg.setValues({{address = savedAddr, flags = gg.TYPE_QWORD, value = savedValue}})
         end
         activeSpeed = false
-        gg.toast("🕹️ Kecepatan Dinonaktifkan")
+        gg.toast("🛑 Speed Kendaraan Dinonaktifkan", true)
+    end
+end
+
+function Menu_vehicle()
+    local status = activeSpeed and ("🟢 AKTIF (" .. speedGamerValue .. "x)") or "🔴 NORMAL"
+    
+    local menu = gg.choice({
+        "🏎️ Speed Kendaraan ×1.6 (Aman)",
+        "🏎️ Speed Kendaraan ×2.1 (Aman)",
+        "🏎️ Speed Kendaraan ×2.5 (Rawan)",
+        "🏎️ Speed Kendaraan ×4.0 (Rawan)",
+        "🏎️ Speed Kendaraan ×5.0 (Full Speed)",
+        "⚙️ Custom Speed (Input Sendiri)",
+        "🛑 Matikan Speed Kendaraan",
+        "🔙 Kembali ke Menu Utama"
+    }, nil, "🏎️ MENU SPEED KENDARAAN\nTIRR MODZ\nStatus: " .. status)
+    
+    if not menu then return end
+    
+    if menu == 1 then
+        SpeedHackGamer(1.6)
+    elseif menu == 2 then
+        SpeedHackGamer(2.1)
+    elseif menu == 3 then
+        SpeedHackGamer(2.5)
+    elseif menu == 4 then
+        SpeedHackGamer(4.0)
+    elseif menu == 5 then
+        SpeedHackGamer(5.0)
+    elseif menu == 6 then
+        SpeedHackGamer() -- custom
+    elseif menu == 7 then
+        SpeedHackGamer() -- toggle off
+    elseif menu == 8 then
+        menu_principal()
+        return
     end
 end
 
@@ -1217,6 +1271,7 @@ function menuFarm()
     if escolha == 1 then farmFazendaBot()
     elseif escolha == 2 then farmMinaBot()
     elseif escolha == 3 then menuOnibusIntegrado()
+        return
     end
 end
 
@@ -1229,6 +1284,7 @@ function autoRun()
     if escolha == 1 then Sprint()
     elseif escolha == 2 then sairDaPrisaoBot()
     elseif escolha == 3 then MenuPremium2()
+        return
     end
 end
 
@@ -1264,6 +1320,7 @@ function menuTeleporte()
             local destino = locais[subEscolha]
             TP(destino[2], destino[3], destino[4])
         end
+        return
     end
 end
 -- ==========================================
@@ -1404,7 +1461,8 @@ function menuSpeedLari()
   elseif fMenu == 2 then ativarspeed(4)
   elseif fMenu == 3 then ativarspeed(8)
   elseif fMenu == 4 then ativarspeed(1)
-  elseif fMenu == 5 then menuSpeed() end
+  elseif fMenu == 5 then menuSpeed()
+  return
 end
 
 function menuSpeedJongkok()
@@ -1420,7 +1478,8 @@ function menuSpeedJongkok()
   elseif jMenu == 2 then ativarspeedagachado(4)
   elseif jMenu == 3 then ativarspeedagachado(8)
   elseif jMenu == 4 then ativarspeedagachado(1)
-  elseif jMenu == 5 then menuSpeed() end
+  elseif jMenu == 5 then menuSpeed()
+  return
 end
 
 function menuSuperLompatan()
@@ -1436,7 +1495,8 @@ function menuSuperLompatan()
   elseif lMenu == 2 then ativarSuperPulo(4)
   elseif lMenu == 3 then ativarSuperPulo(8)
   elseif lMenu == 4 then ativarSuperPulo(1)
-  elseif lMenu == 5 then menuSpeed() end
+  elseif lMenu == 5 then menuSpeed()
+  return
 end
 
 function ativarspeedagachado(velocidadespeed)
@@ -2159,6 +2219,7 @@ function menu_principal()
         mostrarCriadores()
         elseif mainMenu == 6 then
         sair()
+        return
     end
 end
 
@@ -2178,6 +2239,7 @@ function menuPlayerGZ()
         MenuPremium2()
     elseif h == 4 then
         menu_principal()
+        return
     end
 end
 
@@ -2197,6 +2259,7 @@ function menuTeleportInstan()
         menuManual()
     elseif instan == 4 then
         menu_principal()
+        return
     end
 end
 
@@ -2278,6 +2341,7 @@ function menuManual()
         mostrarCriadores()
     elseif manual == 9 then
         menu_principal()
+        return
     end
 end
 -- ==========================================
@@ -2405,6 +2469,7 @@ function menuImortalidade()
         end
     elseif m == 10 then 
         menu_principal() 
+        return
     end
 end
 
