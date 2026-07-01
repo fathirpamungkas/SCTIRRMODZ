@@ -23,11 +23,11 @@ local senhasValidas = {
         ano = 2026, mes = 6, dia = 30, hora = 10, min = 00 
     },
    -- =====================================================
- ["ENZOMUR"] = {
+ ["KINGTIR"] = {
         usuario = "PREMIUM",
         dispositivos = "1",
         criado = "01/01/2026 H08:00",
-        ano = 2026, mes = 7, dia = 1, hora = 10, min = 00 
+        ano = 2026, mes = 7, dia = 8, hora = 20, min = 00 
     },
   -- =====================================================  
 ["VERMONBLACK"] = {
