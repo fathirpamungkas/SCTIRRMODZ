@@ -1445,7 +1445,9 @@ function menuSpeed()
   if sMenu == 1 then menuSpeedLari()
   elseif sMenu == 2 then menuSpeedJongkok()
   elseif sMenu == 3 then menuSuperLompatan()
-  elseif sMenu == 4 then menu_principal() end
+  elseif sMenu == 4 then menu_principal() 
+  return
+  end
 end
 
 function menuSpeedLari()
@@ -1462,7 +1464,8 @@ function menuSpeedLari()
   elseif fMenu == 3 then ativarspeed(8)
   elseif fMenu == 4 then ativarspeed(1)
   elseif fMenu == 5 then menuSpeed()
-  return
+    return
+  end
 end
 
 function menuSpeedJongkok()
@@ -1479,7 +1482,8 @@ function menuSpeedJongkok()
   elseif jMenu == 3 then ativarspeedagachado(8)
   elseif jMenu == 4 then ativarspeedagachado(1)
   elseif jMenu == 5 then menuSpeed()
-  return
+    return
+  end
 end
 
 function menuSuperLompatan()
@@ -1496,7 +1500,8 @@ function menuSuperLompatan()
   elseif lMenu == 3 then ativarSuperPulo(8)
   elseif lMenu == 4 then ativarSuperPulo(1)
   elseif lMenu == 5 then menuSpeed()
-  return
+     return
+  end
 end
 
 function ativarspeedagachado(velocidadespeed)
@@ -2306,6 +2311,7 @@ function teleport_1()
         mostrarCriadores()
     elseif teleport == 13 then
         menu_principal()
+        return
     end
 end
 
