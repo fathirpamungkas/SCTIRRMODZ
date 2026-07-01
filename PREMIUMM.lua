@@ -2207,7 +2207,7 @@ function menu_principal()
         elseif mainMenu == 3 then
         menuFarm()
         elseif mainMenu == 4 then
-        SpeedHackAbaGame()
+        Menu_vehicle()
         elseif mainMenu == 5 then
         mostrarCriadores()
         elseif mainMenu == 6 then
