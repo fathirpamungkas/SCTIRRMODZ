@@ -25,7 +25,7 @@ local senhasValidas = {
    -- =====================================================
  ["KINGTIR"] = {
         usuario = "PREMIUM",
-        dispositivos = "1",
+        dispositivos = "2",
         criado = "01/01/2026 H08:00",
         ano = 2026, mes = 7, dia = 8, hora = 20, min = 00 
     },
