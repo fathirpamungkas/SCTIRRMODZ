@@ -778,58 +778,405 @@ function farmFazendaBot()
 end
 
 -- ==========================================
--- SISTEMA DE MINA ANTERIOR
+-- COORDENADAS DA MINA ANTIGA
 -- ==========================================
-local checkpointsMina = {
-    {nome = "DILARANG",   x = 19.4, y = 1012.2, z = 859.3},
-    {nome = "KORIDOR",  x = 21.1, y = 1012.1, z = 833.7},
-    {nome = "DASAR",     x = 23.2, y = 1009.6, z = 807.9},
-    {nome = "WAKTU",     x = 21.0, y = 1012.0, z = 833.5},
-    {nome = "MENYALAKAN ULANG",  x = 19.2, y = 1012.3, z = 859.5}
+
+-- PONTO 1: Em Cima da Terra (Y ajustado para superfície)
+-- PONTO 2, 3 e 4: Dentro da mina (coordenadas originais)
+local checkpointsMinaAntiga = {
+    {x = 19.4, y = 1050.0, z = 859.3, nome = "🌍 TITIK 1 (DI ATAS TANAH)"},     -- Y alterado para ficar na superfície
+    {x = 21.1, y = 1012.1, z = 833.7, nome = "⛏️ TITIK 2 (DI TAMBANG)"},        -- Original
+    {x = 23.2, y = 1009.6, z = 807.9, nome = "⛏️ TITIK 3 (DI TAMBANG)"},        -- Original
+    {x = 19.4, y = 1012.2, z = 859.3, nome = "⛏️ TITIK 4 (DI TAMBANG)"}         -- NOVO PONTO 4
 }
 
-function farmMinaBot()
-    if not addrZ and not buscarBasePlayer() then return end
-    local farmMinaAtivo = true
-    local cp = 1
-    gg.toast("⛏️ MEMULAI MENAMBANG")
+-- PONTO SEGURO (caso caia no void)
+local pontoSeguro = {x = 19.4, y = 1050.0, z = 859.3, nome = "🏔️ TITIK AMAN"}
 
-    while farmMinaAtivo do
-        if gg.isVisible() then
-            gg.setVisible(false)
-            local escolha = gg.alert("⛏️ AKTIF", "🛑 STOP", "⏭ SKIP")
-            if escolha == 1 then 
-                farmMinaAtivo = false
-                break 
-            elseif escolha == 2 then
-                cp = cp + 1
-                if cp > #checkpointsMina then cp = 1 end
+-- ==========================================
+-- CHECKPOINTS PARA O TASKBOT ORIGINAL
+-- ==========================================
+
+local checkpoints = {
+    {x = 19.4, y = 1012.2, z = 859.3},
+    {x = 21.1, y = 1012.1, z = 833.7},
+    {x = 23.2, y = 1009.6, z = 807.9},
+    {x = 19.4, y = 1012.2, z = 859.3}    -- NOVO CHECKPOINT 4
+}
+local checkpoint_names = {
+    "🗿 TITIK 1 (Tambang)", 
+    "🗿 TITIK 2 (Tambang)", 
+    "🗿 TITIK 3 (Tambang)",
+    "🗿 TITIK 4 (Tambang)"     -- NOVO NOME
+}
+
+-- CHECKPOINTS TP CORRIGIDO
+local pontosSeguros = {
+    {x = 19.4, y = 1012.2, z = 859.3, nome = "🎯 TITIK 1"},
+    {x = 21.1, y = 1012.1, z = 833.7, nome = "🎯 TITIK 2"},
+    {x = 23.2, y = 1009.6, z = 807.9, nome = "🎯 TITIK 3"},
+    {x = 19.4, y = 1012.2, z = 859.3, nome = "🎯 TITIK 4"}    -- NOVO PONTO 4
+}
+
+-- ==========================================
+-- FUNÇÃO ANTI-VOID
+-- ==========================================
+
+function antiVoid()
+    if not addrY then
+        return false
+    end
+    
+    local altura = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+    
+    if altura and altura[1] and altura[1].value then
+        if altura[1].value < 900 or altura[1].value > 2000 then
+            gg.toast("💀 DETEKSI KEKOSONGAN! Berteleportasi Ke Tempat Yang Aman...")
+            gg.setValues({
+                {address = addrX, value = pontoSeguro.x, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = pontoSeguro.y, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = pontoSeguro.z, flags = gg.TYPE_FLOAT}
+            })
+            gg.sleep(100)
+            return true
+        end
+    end
+    return false
+end
+
+-- ==========================================
+-- FUNÇÃO DE TELEPORTE PARA PONTO SEGURO (TERRA)
+-- ==========================================
+
+function teleportToSafePoint()
+    if not addrZ and not buscarBasePlayer() then
+        gg.toast("❌ Teleportasi tidak mungkin dilakukan.")
+        return false
+    end
+    
+    gg.setValues({
+        {address = addrX, value = pontoSeguro.x, flags = gg.TYPE_FLOAT},
+        {address = addrY, value = pontoSeguro.y, flags = gg.TYPE_FLOAT},
+        {address = addrZ, value = pontoSeguro.z, flags = gg.TYPE_FLOAT}
+    })
+    
+    gg.toast("🏔️ TELEPORT PARA " .. pontoSeguro.nome)
+    return true
+end
+
+-- ==========================================
+-- FARM MINA ANTIGA (PRIMEIRO PONTO EM CIMA DA TERRA) COM 4 PONTOS
+-- ==========================================
+
+function farmMinaAntigaComTerra()
+    if #checkpointsMinaAntiga < 2 then
+        gg.alert("❌ Poin Tambang Belum Dikonfigurasi!")
+        return
+    end
+    
+    if not addrZ and not buscarBasePlayer() then 
+        gg.alert("❌ Pemain Tidak Ditemukan")
+        return 
+    end
+    
+    local farming = true
+    local loopCount = 0
+    local currentPoint = 1
+    local delayColeta = 15000  -- 15 Detik Per Poin
+    
+    gg.toast("🌍 FARM MINA ANTIGA | 4 PONTOS | PONTO 1 NA TERRA | 15s por ponto")
+    
+    while farming do
+        local ponto = checkpointsMinaAntiga[currentPoint]
+        
+        -- TELEPORTA PRO PONTO ATUAL
+        gg.setValues({
+            {address = addrX, value = ponto.x, flags = gg.TYPE_FLOAT},
+            {address = addrY, value = ponto.y, flags = gg.TYPE_FLOAT},
+            {address = addrZ, value = ponto.z, flags = gg.TYPE_FLOAT}
+        })
+        
+        gg.toast("📍 " .. ponto.nome)
+        gg.sleep(100)
+        
+        -- VERIFICA SE NÃO CAIU NO VOID
+        local verifica = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+        local tentativas = 0
+        
+        -- Se for ponto 1 (terra), verifica altura ~1050
+        if currentPoint == 1 then
+            while (verifica[1].value < 1040 or verifica[1].value > 1060) and tentativas < 3 do
+                gg.toast("⚠️ Ajustando altura para o terreno...")
+                gg.setValues({
+                    {address = addrX, value = ponto.x, flags = gg.TYPE_FLOAT},
+                    {address = addrY, value = ponto.y, flags = gg.TYPE_FLOAT},
+                    {address = addrZ, value = ponto.z, flags = gg.TYPE_FLOAT}
+                })
+                gg.sleep(50)
+                verifica = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+                tentativas = tentativas + 1
+            end
+        else
+            -- Pontos da mina (dentro)
+            while (verifica[1].value < 900 or verifica[1].value > 1100) and tentativas < 3 do
+                gg.toast("⚠️ Kekosongan Terdeteksi! Berteleportasi lagi...")
+                gg.setValues({
+                    {address = addrX, value = ponto.x, flags = gg.TYPE_FLOAT},
+                    {address = addrY, value = ponto.y, flags = gg.TYPE_FLOAT},
+                    {address = addrZ, value = ponto.z, flags = gg.TYPE_FLOAT}
+                })
+                gg.sleep(50)
+                verifica = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+                tentativas = tentativas + 1
             end
         end
-
-        local posY = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})[1].value
-        if posY < 900 then
-            TP(checkpointsMina[1].x, checkpointsMina[1].y, checkpointsMina[1].z)
-            cp = 1
+        
+        -- CONTAGEM REGRESSIVA DA COLETA
+        local tempoPassado = 0
+        
+        while tempoPassado < delayColeta and farming do
+            local segundosRestantes = 15 - math.floor(tempoPassado / 1000)
+            if segundosRestantes > 0 then
+                local icone = (currentPoint == 1) and "🌍" or "⛏️"
+                gg.toast(icone .. " MENGUMPULKAN... " .. segundosRestantes .. "s | " .. ponto.nome)
+            end
+            
+            -- ANTI-VOID A CADA 500ms
+            if math.floor(tempoPassado / 500) ~= math.floor((tempoPassado - 100) / 500) then
+                antiVoid()
+            end
+            
+            if gg.isVisible() then
+                gg.setVisible(false)
+                local op = gg.alert("📍 " .. ponto.nome, "🛑 BERHENTI", "⏩ LEWATI ")
+                if op == 1 then
+                    farming = false
+                    gg.toast("⛔ BERHENTI")
+                    return
+                elseif op == 2 then
+                    break
+                end
+            end
+            gg.sleep(100)
+            tempoPassado = tempoPassado + 100
         end
+        
+        -- PRÓXIMO PONTO
+        currentPoint = currentPoint + 1
+        if currentPoint > #checkpointsMinaAntiga then
+            currentPoint = 1
+            loopCount = loopCount + 1
+            gg.toast("🔄 WAKTU " .. loopCount .. " COMPLETADA!")
+            
+            -- Mostra estatísticas do loop
+            gg.toast("📊 WAKTU " .. loopCount .. " | Próximo: " .. checkpointsMinaAntiga[1].nome)
+        end
+    end
+end
 
-        local alvo = checkpointsMina[cp]
-        local pos = gg.getValues({{address = addrX, flags = gg.TYPE_FLOAT}, {address = addrY, flags = gg.TYPE_FLOAT}, {address = addrZ, flags = gg.TYPE_FLOAT}})
-        local dx, dy, dz = alvo.x - pos[1].value, alvo.y - pos[2].value, alvo.z - pos[3].value
+-- ==========================================
+-- FARM TASKBOT (ANDANDO) - MINA ANTIGA COM 4 PONTOS
+-- ==========================================
+
+function farmTaskBot()
+    if #checkpoints < 2 then
+        gg.alert("❌ Anda Membutuhkan Setidaknya 2 Pos Pemeriksaan!")
+        return
+    end
+    
+    if not addrZ and not buscarBasePlayer() then 
+        gg.alert("❌ Pemain Tidak Ditemukan")
+        return 
+    end
+    
+    local waitTime = 150
+    local speed = 5.0
+    local distanciaColeta = 4.0
+    local delayColeta = 17000
+    
+    gpsAtivo = true
+    local currentCP = 1
+    local loopCount = 0
+    local coletando = false
+    
+    gg.toast("🤖 BOT DIMULAI | " .. #checkpoints .. " pontos | ⏱️ 17 DETIK PER LOKASI")
+    
+    while gpsAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            local opcao = gg.alert("🤖 BOT AKTIF", "🛑 BERHENTI", "🔄 LEWATI ")
+            if opcao == 1 then 
+                gpsAtivo = true 
+                gg.toast("⛔ BERHENTI")
+                break 
+            elseif opcao == 2 then
+                currentCP = currentCP + 1
+                if currentCP > #checkpoints then 
+                    currentCP = 1
+                    loopCount = loopCount + 1
+                    gg.toast("🔄 Loop #" .. loopCount)
+                else
+                    gg.toast("⏩ Melompat Ke " .. checkpoint_names[currentCP])
+                end
+                coletando = false
+            end
+        end
+        
+        local target = checkpoints[currentCP]
+        
+        local atual = gg.getValues({
+            {address = addrX, flags = gg.TYPE_FLOAT},
+            {address = addrY, flags = gg.TYPE_FLOAT},
+            {address = addrZ, flags = gg.TYPE_FLOAT}
+        })
+        
+        local dx = target.x - atual[1].value
+        local dy = target.y - atual[2].value
+        local dz = target.z - atual[3].value
         local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
-
-        if dist < DIST_MIN then
-            gg.toast("⛏️ MENGUMPULKAN DI: " .. alvo.nome)
-            gg.sleep(6000)
-            cp = cp + 1
-            if cp > #checkpointsMina then cp = 1 end
-        else
-            local nx = pos[1].value + (dx / dist) * SPEED_MINA
-            local ny = pos[2].value + (dy / dist) * SPEED_MINA
-            local nz = pos[3].value + (dz / dist) * SPEED_MINA
-            gg.setValues({{address = addrX, value = nx, flags = gg.TYPE_FLOAT}, {address = addrY, value = ny, flags = gg.TYPE_FLOAT}, {address = addrZ, value = nz, flags = gg.TYPE_FLOAT}})
+        
+        if dist < distanciaColeta and not coletando then
+            coletando = true
+            
+            local tempoPassado = 0
+            local tempoLoop = 0
+            
+            gg.toast("⛏️ PERTAMBANGAN DI " .. checkpoint_names[currentCP] .. " | ⏱️ 17s")
+            
+            while tempoPassado < delayColeta and gpsAtivo do
+                if math.floor(tempoPassado / 1000) ~= 17 - math.floor(tempoPassado / 1000) then
+                    local segundos = 17 - math.floor(tempoPassado / 1000)
+                    if segundos > 0 then
+                        gg.toast("⛏️ COLETANDO... " .. segundos .. "s | " .. checkpoint_names[currentCP])
+                    end
+                end
+                
+                tempoLoop = tempoLoop + 100
+                if tempoLoop >= 500 then
+                    antiVoid()
+                    tempoLoop = 0
+                end
+                
+                if gg.isVisible() then
+                    gg.setVisible(false)
+                    local pular = gg.alert("⛏️ MENGUMPULKAN... " .. (17 - math.floor(tempoPassado/1000)) .. "s", "⏩ LEWATI", "🛑 BERHENTI")
+                    if pular == 1 then
+                        break
+                    elseif pular == 2 then
+                        gpsAtivo = false
+                        gg.toast("⛔ Berhenti")
+                        return
+                    end
+                end
+                gg.sleep(100)
+                tempoPassado = tempoPassado + 100
+            end
+            
+            if gpsAtivo then
+                gg.toast("✅ BIJIH YANG DIKUMPULKAN! → Próximo checkpoint")
+                currentCP = currentCP + 1
+                if currentCP > #checkpoints then
+                    currentCP = 1
+                    loopCount = loopCount + 1
+                    gg.toast("🔄 COMPLETOU " .. loopCount .. " VOLTA(S)!")
+                end
+                coletando = false
+            end
+            
+        elseif dist >= distanciaColeta and not coletando then
+            local stepX = atual[1].value + (dx / dist) * speed
+            local stepY = atual[2].value + (dy / dist) * speed
+            local stepZ = atual[3].value + (dz / dist) * speed
+            
+            gg.setValues({
+                {address = addrX, value = stepX, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = stepY, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = stepZ, flags = gg.TYPE_FLOAT}
+            })
         end
-        gg.sleep(70)
+        
+        gg.sleep(waitTime)
+    end
+end
+
+-- ==========================================
+-- FARM MINA TP CORRIGIDO COM 4 PONTOS
+-- ==========================================
+
+function farmMinaTPCorrigido()
+    if not addrZ and not buscarBasePlayer() then 
+        gg.alert("❌ Pemain tidak ditemukan")
+        return 
+    end
+    
+    local farming = true
+    local loopCount = 0
+    local delayColetaTP = 17000  -- 17 detik per titik (sesuai lama panen)
+    
+    gg.toast("🚀 AUTO FARM TAMBANG TP DIMULAI\n🔄 LOOP INFINITE - Buka GG untuk stop")
+    
+    while farming do
+        for i, ponto in ipairs(pontosSeguros) do
+            if not farming then break end
+            
+            -- Teleport ke titik
+            gg.setValues({
+                {address = addrX, value = ponto.x, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = ponto.y, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = ponto.z, flags = gg.TYPE_FLOAT}
+            })
+            
+            gg.toast("📍 TELEPORT: " .. ponto.nome)
+            gg.sleep(300)
+            
+            -- Anti Void Check
+            local verifica = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+            local tentativas = 0
+            while (verifica[1].value < 900 or verifica[1].value > 2000) and tentativas < 5 do
+                gg.toast("⚠️ VOID TERDETEKSI! Koreksi...")
+                gg.setValues({
+                    {address = addrX, value = ponto.x, flags = gg.TYPE_FLOAT},
+                    {address = addrY, value = ponto.y + 5, flags = gg.TYPE_FLOAT},
+                    {address = addrZ, value = ponto.z, flags = gg.TYPE_FLOAT}
+                })
+                gg.sleep(150)
+                verifica = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+                tentativas = tentativas + 1
+            end
+            
+            -- Waktu panen otomatis (tanpa alert)
+            local tempoPassado = 0
+            while tempoPassado < delayColetaTP and farming do
+                local detik = 17 - math.floor(tempoPassado / 1000)
+                if detik > 0 and detik % 5 == 0 then
+                    gg.toast("⛏️ MENGUMPULKAN... " .. detik .. "s | " .. ponto.nome)
+                end
+                
+                -- Anti-void setiap 1 detik
+                if tempoPassado % 1000 < 100 then
+                    antiVoid()
+                end
+                
+                -- Cek apakah GG dibuka (untuk stop)
+                if gg.isVisible(true) then
+                    gg.setVisible(false)
+                    local stop = gg.alert("🤖 AUTO FARM TAMBANG AKTIF", "🛑 BERHENTI", "LANJUTKAN")
+                    if stop == 1 then
+                        farming = false
+                        gg.toast("⛔ AUTO FARM TAMBANG DIHENTIKAN")
+                        return
+                    end
+                end
+                
+                gg.sleep(100)
+                tempoPassado = tempoPassado + 100
+            end
+            
+            gg.toast("✅ SELESAI | " .. ponto.nome)
+        end
+        
+        loopCount = loopCount + 1
+        gg.toast("🔄 LOOP KE-" .. loopCount .. " SELESAI! Melanjutkan...")
     end
 end
 
@@ -1264,12 +1611,15 @@ function menuFarm()
     local escolha = gg.choice({
         "🌾 AUTO TANI",
         "⛏️ AUTO TAMBANG",
+        "⛏️ AUTO TAMBANG ( INSTANT )",
         "🚌 AUTO BUS",
         "◀️ KEMBALI"
     }, nil, "🚀 AUTO PILOT KERJA")
     if escolha == 1 then farmFazendaBot()
     elseif escolha == 2 then farmMinaBot()
-    elseif escolha == 3 then menuOnibusIntegrado()
+    elseif escolha == 3 then farmMinaTPCorrigido()
+    elseif escolha == 4 then menuOnibusIntegrado()
+    elseif escolha == 5 then menu_principal()
     end
 end
 
@@ -1282,6 +1632,7 @@ function autoRun()
     if escolha == 1 then Sprint()
     elseif escolha == 2 then sairDaPrisaoBot()
     elseif escolha == 3 then MenuPremium2()
+    elseif escolha == 4 then menu_principal()
     end
 end
 
@@ -1317,6 +1668,7 @@ function menuTeleporte()
             local destino = locais[subEscolha]
             TP(destino[2], destino[3], destino[4])
         end
+        elseif escolha == 3 then menu_principal()
     end
 end
 -- ==========================================
@@ -1605,6 +1957,38 @@ function buscarBasePlayer()
         end
     end
     gg.toast("❌ Pemain tidak ditemukan")
+    return false
+end
+
+function carregarBasePlayer()
+    gg.clearResults()
+    gg.setRanges(gg.REGION_OTHER)
+    gg.toast("🔄 Carregando base do player...")
+    gg.searchNumber(tostring(BASE), gg.TYPE_QWORD)
+    local r = gg.getResults(1000)
+    if #r == 0 then 
+        gg.toast("❌ Base tidak ditemukan") 
+        return false 
+    end
+    local check1, check2 = {}, {}
+    for i, v in ipairs(r) do
+        check1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
+        check2[i] = {address = v.address - 212, flags = gg.TYPE_QWORD}
+    end
+    check1 = gg.getValues(check1)
+    check2 = gg.getValues(check2)
+    for i = 1, #check1 do
+        if check1[i].value == -4411463732228264604 and check2[i].value == -4250292608395772511 then
+            local base = check1[i].address - 108
+            addrZ = base + OZ
+            addrX = base + OX
+            addrY = base + OY
+            gg.toast("✅ Base Pemain Berhasil Dimuat!")
+            gg.toast("📍 X: " .. addrX .. " | Y: " .. addrY .. " | Z: " .. addrZ)
+            return true
+        end
+    end
+    gg.toast("❌ Gagal Memuat Base Pemain.")
     return false
 end
 
@@ -1957,6 +2341,11 @@ function menuTeleportGPS()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT GPS - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(teleportPoints[choice])
 end
@@ -1970,6 +2359,11 @@ function TpUmum()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT UMUM - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(umum[choice])
 end
@@ -1983,6 +2377,11 @@ function TpFraksi()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT FRAKSI - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(fraksi[choice])
 end
@@ -1996,6 +2395,11 @@ function TpToko()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT TOKO - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(toko[choice])
 end
@@ -2009,6 +2413,11 @@ function TpParkiran()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT PARKIRAN - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(parkiran[choice])
 end
@@ -2022,6 +2431,11 @@ function TpBank()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT KE BANK - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(bank[choice])
 end
@@ -2035,6 +2449,11 @@ function TpSc()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT SEWA SCOOTER - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(scooter[choice])
 end
@@ -2048,6 +2467,11 @@ function JobKerja()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT JOB KERJA - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(jobkerja[choice])
 end
@@ -2061,6 +2485,11 @@ function TpLadang()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT LADANG PERTANIAN - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(ladang[choice])
 end
@@ -2074,6 +2503,11 @@ function TpPenjara()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT KE PENJARA - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(penjara[choice])
 end
@@ -2087,6 +2521,11 @@ function TpKontainer()
 
     local choice = gg.choice(menuList, nil, "🧭 TELEPORT LELANG KONTAINER - KING TIRRZ v1.3")
     if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
 
     teleportToPoint(kontainer[choice])
 end
