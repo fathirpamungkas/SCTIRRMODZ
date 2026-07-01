@@ -186,7 +186,7 @@ local GPS = {
     address = nil,
     running = false
 }
-
+local ENDERECO_BASE = nil
 local PRIMEIRA_BUSCA = "-333.24081420898;-1277.98217773438;10.36108493805"
 local SEGUNDA_BUSCA = '"-750.6337890625;-1311.76403808594;18.96370315552"'
 
@@ -197,7 +197,6 @@ local savedValue = nil
 
 local addrZ, addrX, addrY = nil, nil, nil
 local BASE = -4411604134709397577
-local ENDERECO_BASE = nil
 local OX, OY, OZ = 0x4, 0x8, 0x0
 
 local gps_qword = "7233187898168705024"
@@ -1528,13 +1527,26 @@ function esticadaoff()
 end
 
 -- ==========================================
--- FUNÇÕES DE BUSCA
+-- FUNGSI BUSCAR BASE PLAYER (DIPERBAIKI)
 -- ==========================================
 function buscarBasePlayer()
-    if addrX and addrY and addrZ then return true end
+    if addrX and addrY and addrZ then 
+        -- Verifikasi apakah alamat masih valid
+        local test = gg.getValues({{address = addrX, flags = gg.TYPE_FLOAT}})
+        if test and test[1] and test[1].value ~= 0 then
+            return true 
+        end
+    end
+    
     gg.clearResults()
     gg.searchNumber(tostring(BASE), gg.TYPE_QWORD)
     local r = gg.getResults(1000)
+    
+    if #r == 0 then
+        gg.toast("❌ Base tidak ditemukan!")
+        return false
+    end
+    
     local check1, check2 = {}, {}
     for i, v in ipairs(r) do
         check1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
@@ -1542,30 +1554,196 @@ function buscarBasePlayer()
     end
     check1 = gg.getValues(check1)
     check2 = gg.getValues(check2)
+    
     for i = 1, #check1 do
         if check1[i].value == -4411463732228264604 and check2[i].value == -4250292608395772511 then
             local base = check1[i].address - 108
             addrZ = base + OZ
             addrX = base + OX
             addrY = base + OY
-            gg.toast("✅ Pemain dimuat")
+            gg.toast("✅ Pemain ditemukan!")
             return true
         end
     end
+    
     gg.toast("❌ Pemain tidak ditemukan")
     return false
 end
 
+-- ==========================================
+-- FUNGSI TP_GPS YANG DIPERBAIKI
+-- ==========================================
+function TP_GPS()
+    -- 1. Verifikasi base player
+    if not addrX or not addrY or not addrZ then
+        if not buscarBasePlayer() then 
+            gg.toast("❌ Base player tidak ditemukan!")
+            return 
+        end
+    end
+    
+    -- 2. Cari GPS
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+    local r = gg.getResults(100)
+
+    if #r == 0 then
+        gg.alert("❌ GPS tidak ditemukan!\n\nPastikan Anda sudah menandai tujuan di peta.")
+        return
+    end
+
+    -- 3. Filter alamat GPS yang valid
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        -- Baca nilai koordinat Z untuk validasi
+        local testZ = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})
+        local testX = gg.getValues({{address = v.address - 0x10, flags = gg.TYPE_FLOAT}})
+        local testY = gg.getValues({{address = v.address - 0x0C, flags = gg.TYPE_FLOAT}})
+        
+        -- Validasi: koordinat harus valid (bukan 0 dan dalam rentang wajar)
+        if testZ and testZ[1] and testX and testX[1] and testY and testY[1] then
+            local z = testZ[1].value
+            local x = testX[1].value
+            local y = testY[1].value
+            
+            -- Koordinat valid jika tidak 0 dan dalam rentang masuk akal
+            if z ~= 0 and x ~= 0 and y ~= 0 and 
+               math.abs(x) < 5000 and math.abs(y) < 5000 and math.abs(z) < 5000 then
+                gps_address = v.address
+                break
+            end
+        end
+    end
+
+    if not gps_address then 
+        gg.alert("❌ GPS tidak valid!\n\nPastikan Anda menandai tujuan dengan benar di peta.")
+        return
+    end
+
+    -- 4. Loop teleportasi
+    local gpsAtivo = true
+    gg.toast("⚡ Teleportasi GPS Instan AKTIF")
+    gg.toast("📍 Klik ikon GG untuk berhenti")
+
+    while gpsAtivo do
+        -- Cek apakah user membuka GG untuk berhenti
+        if gg.isVisible() then
+            gg.setVisible(false)
+            local choice = gg.alert("📍 TP GPS AKTIF", "🛑 STOP", "⏭ LANJUT")
+            if choice == 1 then 
+                gpsAtivo = false
+                gg.toast("⏹️ Teleportasi GPS Dihentikan")
+                break 
+            end
+        end
+
+        -- Baca koordinat GPS saat ini
+        local atual = gg.getValues({
+            {address = gps_address - 0x14, flags = gg.TYPE_FLOAT},  -- Z
+            {address = gps_address - 0x10, flags = gg.TYPE_FLOAT},  -- X
+            {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}   -- Y
+        })
+
+        -- Validasi koordinat sebelum teleport
+        if atual[1] and atual[2] and atual[3] then
+            local z = atual[1].value
+            local x = atual[2].value
+            local y = atual[3].value
+            
+            -- Hanya teleport jika koordinat valid
+            if z ~= 0 and x ~= 0 and y ~= 0 and 
+               math.abs(x) < 5000 and math.abs(y) < 5000 and math.abs(z) < 5000 then
+                
+                -- Teleport player ke koordinat GPS
+                local success = gg.setValues({
+                    {address = addrX, value = x, flags = gg.TYPE_FLOAT},
+                    {address = addrY, value = y, flags = gg.TYPE_FLOAT},
+                    {address = addrZ, value = z, flags = gg.TYPE_FLOAT}
+                })
+                
+                if success then
+                    gg.toast("📍 Teleport ke: X=" .. string.format("%.1f", x) .. 
+                             " Y=" .. string.format("%.1f", y) .. 
+                             " Z=" .. string.format("%.1f", z))
+                end
+            end
+        end
+        
+        gg.sleep(200) -- Delay untuk stabilitas
+    end
+    
+    gg.clearResults()
+end
+
+-- ==========================================
+-- FUNGSI TP (TELEPORT MANUAL)
+-- ==========================================
 function TP(x, y, z)
     if not addrX or not addrY or not addrZ then
-        if not buscarBasePlayer() then return end
+        if not buscarBasePlayer() then 
+            gg.toast("❌ Base player tidak ditemukan!")
+            return 
+        end
     end
+    
+    -- Validasi koordinat
+    if type(x) ~= "number" or type(y) ~= "number" or type(z) ~= "number" then
+        gg.toast("❌ Koordinat tidak valid!")
+        return
+    end
+    
     gg.setValues({
         {address = addrX, value = x, flags = gg.TYPE_FLOAT},
         {address = addrY, value = y, flags = gg.TYPE_FLOAT},
         {address = addrZ, value = z, flags = gg.TYPE_FLOAT}
     })
-    gg.toast("✅ TELEPORTASI!")
+    
+    gg.toast("✅ Teleportasi ke: X=" .. string.format("%.1f", x) .. 
+             " Y=" .. string.format("%.1f", y) .. 
+             " Z=" .. string.format("%.1f", z))
+end
+
+-- ==========================================
+-- FUNGSI UNTUK DEBUG (OPSIONAL)
+-- ==========================================
+function testGPS()
+    -- Tes mencari GPS tanpa teleport
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+    local r = gg.getResults(100)
+    
+    if #r == 0 then
+        gg.alert("❌ Tidak ada GPS ditemukan")
+        return
+    end
+    
+    local found = 0
+    local msg = "GPS ditemukan:\n"
+    for i, v in ipairs(r) do
+        if i <= 5 then -- hanya tampilkan 5 pertama
+            local z = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})
+            local x = gg.getValues({{address = v.address - 0x10, flags = gg.TYPE_FLOAT}})
+            local y = gg.getValues({{address = v.address - 0x0C, flags = gg.TYPE_FLOAT}})
+            
+            if z and z[1] and x and x[1] and y and y[1] then
+                if z[1].value ~= 0 and x[1].value ~= 0 and y[1].value ~= 0 then
+                    found = found + 1
+                    msg = msg .. found .. ". X=" .. string.format("%.1f", x[1].value) ..
+                          " Y=" .. string.format("%.1f", y[1].value) ..
+                          " Z=" .. string.format("%.1f", z[1].value) .. "\n"
+                end
+            end
+        end
+    end
+    
+    if found > 0 then
+        gg.alert(msg .. "\nTotal GPS valid: " .. found)
+    else
+        gg.alert("❌ Tidak ada GPS valid ditemukan\n\nPastikan Anda sudah menandai tujuan di peta!")
+    end
+    gg.clearResults()
 end
 
 function obterDeslocamento()
