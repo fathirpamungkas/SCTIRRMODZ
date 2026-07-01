@@ -2993,6 +2993,440 @@ function sair()
 end
 
 -- ==========================================
+-- TELEPORT TERBANG GPS (PLAYER + KENDARAAN)
+-- ==========================================
+
+-- Variabel global untuk menyimpan alamat kendaraan
+local vehicleAddresses = {
+    y = nil,  -- alamat Y kendaraan
+    x = nil,  -- alamat X kendaraan
+    z = nil,  -- alamat Z kendaraan
+    found = false
+}
+
+-- ==========================================
+-- FUNGSI MENCARI ALAMAT KENDARAAN
+-- ==========================================
+function findVehicleAddresses()
+    gg.clearResults()
+    gg.toast("🔍 Mencari alamat kendaraan...")
+    
+    -- Gunakan metode yang sama seperti auto bus
+    gg.searchNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.sleep(500)
+    
+    local resultadosIniciais = gg.getResults(200)
+    if #resultadosIniciais == 0 then
+        gg.toast("❌ Tidak ada alamat kendaraan ditemukan!")
+        gg.clearResults()
+        return false
+    end
+    
+    gg.toast("🚶 Gerakkan karakter Anda...")
+    gg.sleep(3000)
+    
+    gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.toast("🚶 Gerakkan karakter lagi...")
+    gg.sleep(2000)
+    gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.toast("🚗 Masuk ke kendaraan (mobil/motor)...")
+    gg.sleep(2000)
+    gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
+    gg.toast("⏳ Tunggu 10 detik...")
+    gg.sleep(10000)
+    gg.refineNumber("-255~-230", gg.TYPE_FLOAT)
+    
+    local resultadosFiltrados = gg.getResults(100)
+    if #resultadosFiltrados > 0 then
+        -- Ambil alamat pertama yang valid
+        for i, resultado in ipairs(resultadosFiltrados) do
+            local yAddr = resultado.address
+            -- Verifikasi apakah alamat ini valid (tidak 0)
+            local testY = gg.getValues({{address = yAddr, flags = gg.TYPE_FLOAT}})
+            if testY and testY[1] and testY[1].value ~= 0 then
+                vehicleAddresses.y = yAddr
+                vehicleAddresses.x = yAddr + 4
+                vehicleAddresses.z = yAddr + 8
+                vehicleAddresses.found = true
+                
+                gg.toast(string.format("✅ Alamat kendaraan ditemukan!\nY: 0x%X", yAddr))
+                gg.clearResults()
+                return true
+            end
+        end
+    end
+    
+    gg.toast("❌ Gagal menemukan alamat kendaraan!")
+    gg.clearResults()
+    return false
+end
+
+-- ==========================================
+-- FUNGSI TELEPORT KENDARAAN
+-- ==========================================
+function teleportVehicle(y, x, z)
+    if not vehicleAddresses.found then
+        -- Coba cari ulang
+        if not findVehicleAddresses() then
+            return false
+        end
+    end
+    
+    -- Update nilai kendaraan
+    local values = {
+        {address = vehicleAddresses.y, flags = gg.TYPE_FLOAT, value = y},
+        {address = vehicleAddresses.x, flags = gg.TYPE_FLOAT, value = x},
+        {address = vehicleAddresses.z, flags = gg.TYPE_FLOAT, value = z}
+    }
+    
+    gg.setValues(values)
+    return true
+end
+
+-- ==========================================
+-- FUNGSI TELEPORT PLAYER
+-- ==========================================
+function teleportPlayer(y, x, z)
+    if not addrZ then
+        if not buscarBasePlayer() then
+            gg.toast("❌ Base player tidak ditemukan!")
+            return false
+        end
+    end
+    
+    gg.setValues({
+        {address = addrX, flags = gg.TYPE_FLOAT, value = x},
+        {address = addrY, flags = gg.TYPE_FLOAT, value = y},
+        {address = addrZ, flags = gg.TYPE_FLOAT, value = z}
+    })
+    return true
+end
+
+-- ==========================================
+-- FUNGSI TELEPORT TERBANG GPS (PLAYER + KENDARAAN)
+-- ==========================================
+function TP_GPS_Fly()
+    -- Cari GPS
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+    local r = gg.getResults(100)
+
+    if #r == 0 then
+        gg.toast("❌ Tandai tujuan di peta terlebih dahulu!")
+        return
+    end
+
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
+        if test ~= 0 then
+            gps_address = v.address
+            break 
+        end
+    end
+
+    if not gps_address then 
+        gg.toast("❌ GPS tidak ditemukan atau tidak valid") 
+        return
+    end
+
+    -- Ambil koordinat GPS
+    local gpsCoords = gg.getValues({
+        {address = gps_address - 0x14, flags = gg.TYPE_FLOAT},  -- Z
+        {address = gps_address - 0x10, flags = gg.TYPE_FLOAT},  -- X
+        {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}   -- Y
+    })
+
+    if gpsCoords[1].value == 0 or gpsCoords[2].value == 0 then
+        gg.toast("❌ Koordinat GPS tidak valid")
+        return
+    end
+
+    local targetY = gpsCoords[1].value
+    local targetX = gpsCoords[2].value
+    local targetZ = gpsCoords[3].value
+
+    -- ==========================================
+    -- MENU PILIHAN TELEPORT
+    -- ==========================================
+    local choice = gg.choice({
+        "🚶 Teleport Player Saja",
+        "🚗 Teleport Player + Kendaraan",
+        "🚗 Teleport Kendaraan Saja",
+        "🔍 Cari Alamat Kendaraan",
+        "◀️ Kembali"
+    }, nil, "✈️ TELEPORT TERBANG GPS")
+
+    if not choice or choice == 5 then return end
+
+    if choice == 1 then
+        -- Teleport Player Saja
+        if teleportPlayer(targetY, targetX, targetZ) then
+            gg.toast(string.format("✅ Player terbang ke GPS!\n📍 X:%.2f Y:%.2f Z:%.2f", targetX, targetY, targetZ))
+        end
+
+    elseif choice == 2 then
+        -- Teleport Player + Kendaraan
+        local playerOk = teleportPlayer(targetY, targetX, targetZ)
+        local vehicleOk = teleportVehicle(targetY, targetX, targetZ)
+        
+        if playerOk and vehicleOk then
+            gg.toast(string.format("✅ Player + Kendaraan terbang ke GPS!\n📍 X:%.2f Y:%.2f Z:%.2f", targetX, targetY, targetZ))
+        elseif playerOk and not vehicleOk then
+            gg.toast("⚠️ Player terbang, tapi kendaraan tidak ditemukan!")
+        else
+            gg.toast("❌ Gagal teleport!")
+        end
+
+    elseif choice == 3 then
+        -- Teleport Kendaraan Saja
+        if teleportVehicle(targetY, targetX, targetZ) then
+            gg.toast(string.format("✅ Kendaraan terbang ke GPS!\n📍 X:%.2f Y:%.2f Z:%.2f", targetX, targetY, targetZ))
+        else
+            gg.toast("❌ Gagal teleport kendaraan! Cari alamat dulu.")
+        end
+
+    elseif choice == 4 then
+        findVehicleAddresses()
+    end
+end
+
+-- ==========================================
+-- FUNGSI TELEPORT TERBANG DENGAN ALTITUDE
+-- ==========================================
+function TP_GPS_FlyWithAltitude()
+    -- Cari GPS
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+    local r = gg.getResults(100)
+
+    if #r == 0 then
+        gg.toast("❌ Tandai tujuan di peta terlebih dahulu!")
+        return
+    end
+
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
+        if test ~= 0 then
+            gps_address = v.address
+            break 
+        end
+    end
+
+    if not gps_address then 
+        gg.toast("❌ GPS tidak ditemukan atau tidak valid") 
+        return
+    end
+
+    local gpsCoords = gg.getValues({
+        {address = gps_address - 0x14, flags = gg.TYPE_FLOAT},
+        {address = gps_address - 0x10, flags = gg.TYPE_FLOAT},
+        {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}
+    })
+
+    if gpsCoords[1].value == 0 or gpsCoords[2].value == 0 then
+        gg.toast("❌ Koordinat GPS tidak valid")
+        return
+    end
+
+    -- Input altitude tambahan
+    local input = gg.prompt({"✈️ Altitude tambahan (meter):"}, {"10"}, {"number"})
+    if not input then return end
+    
+    local altitude = tonumber(input[1]) or 10
+    
+    local targetY = gpsCoords[1].value + altitude
+    local targetX = gpsCoords[2].value
+    local targetZ = gpsCoords[3].value
+
+    -- ==========================================
+    -- MENU PILIHAN
+    -- ==========================================
+    local choice = gg.choice({
+        "🚶 Player Saja (Terbang)",
+        "🚗 Player + Kendaraan (Terbang)",
+        "🚗 Kendaraan Saja (Terbang)",
+        "◀️ Kembali"
+    }, nil, "✈️ TELEPORT TERBANG + ALTITUDE")
+
+    if not choice or choice == 4 then return end
+
+    if choice == 1 then
+        teleportPlayer(targetY, targetX, targetZ)
+        gg.toast(string.format("✅ Player terbang ke GPS + %.0fm!\n📍 X:%.2f Y:%.2f Z:%.2f", altitude, targetX, targetY, targetZ))
+    elseif choice == 2 then
+        local playerOk = teleportPlayer(targetY, targetX, targetZ)
+        local vehicleOk = teleportVehicle(targetY, targetX, targetZ)
+        if playerOk and vehicleOk then
+            gg.toast(string.format("✅ Player + Kendaraan terbang ke GPS + %.0fm!", altitude))
+        else
+            gg.toast("⚠️ Sebagian teleport gagal!")
+        end
+    elseif choice == 3 then
+        if teleportVehicle(targetY, targetX, targetZ) then
+            gg.toast(string.format("✅ Kendaraan terbang ke GPS + %.0fm!", altitude))
+        else
+            gg.toast("❌ Gagal teleport kendaraan!")
+        end
+    end
+end
+
+-- ==========================================
+-- FUNGSI FLY MODE (TERBANG KONTINYU)
+-- ==========================================
+function FlyModeGPS()
+    if not addrZ and not buscarBasePlayer() then
+        gg.toast("❌ Player tidak ditemukan!")
+        return
+    end
+
+    local choice = gg.choice({
+        "🚶 Fly Player (Ikuti GPS)",
+        "🚗 Fly Player + Kendaraan (Ikuti GPS)",
+        "🛑 Berhenti Fly",
+        "◀️ Kembali"
+    }, nil, "✈️ FLY MODE GPS")
+
+    if not choice or choice == 4 then return end
+    
+    if choice == 3 then
+        gg.toast("🛑 Fly mode dihentikan")
+        return
+    end
+
+    local useVehicle = (choice == 2)
+    
+    gg.toast("✈️ FLY MODE AKTIF! Tandai tujuan di peta...")
+    gg.setVisible(false)
+    
+    local flyActive = true
+    local lastGPS = nil
+    
+    while flyActive do
+        -- Cek apakah GG dibuka untuk stop
+        if gg.isVisible(true) then
+            gg.setVisible(false)
+            local stop = gg.alert("✈️ FLY MODE AKTIF", "🛑 BERHENTI", "LANJUTKAN")
+            if stop == 1 then
+                flyActive = false
+                gg.toast("🛑 Fly mode dihentikan!")
+                break
+            end
+        end
+        
+        -- Cari GPS
+        gg.clearResults()
+        gg.setRanges(gg.REGION_C_BSS)
+        gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+        local r = gg.getResults(100)
+        
+        if #r > 0 then
+            local gps_address = nil
+            for i, v in ipairs(r) do
+                local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
+                if test ~= 0 then
+                    gps_address = v.address
+                    break 
+                end
+            end
+            
+            if gps_address then
+                local gpsCoords = gg.getValues({
+                    {address = gps_address - 0x14, flags = gg.TYPE_FLOAT},
+                    {address = gps_address - 0x10, flags = gg.TYPE_FLOAT},
+                    {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}
+                })
+                
+                if gpsCoords[1].value ~= 0 and gpsCoords[2].value ~= 0 then
+                    -- Teleport dengan kecepatan tinggi (terbang)
+                    local targetY = gpsCoords[1].value + 8  -- +8 meter untuk terbang
+                    local targetX = gpsCoords[2].value
+                    local targetZ = gpsCoords[3].value
+                    
+                    if useVehicle then
+                        teleportVehicle(targetY, targetX, targetZ)
+                    end
+                    teleportPlayer(targetY, targetX, targetZ)
+                    
+                    lastGPS = {x = targetX, y = targetY, z = targetZ}
+                end
+            end
+        end
+        
+        gg.sleep(500) -- Update setiap 500ms
+    end
+end
+
+-- ==========================================
+-- MENU GPS TERBANG (PENGGANTI TP_GPS)
+-- ==========================================
+function kendaraanGPS()
+    local menu = gg.choice({
+        "🎯 Teleport ke GPS (Normal)",
+        "✈️ Teleport Terbang ke GPS",
+        "✈️ Teleport Terbang + Altitude",
+        "🌊 Fly Mode (Ikuti GPS Kontinyu)",
+        "🔍 Cari Alamat Kendaraan",
+        "◀️ Kembali"
+    }, nil, "✈️ GPS FLY TELEPORT")
+
+    if not menu or menu == 6 then return end
+
+    if menu == 1 then
+        -- Teleport normal (tanpa terbang)
+        gg.clearResults()
+        gg.setRanges(gg.REGION_C_BSS)
+        gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+        local r = gg.getResults(100)
+        
+        if #r == 0 then
+            gg.toast("❌ Tandai tujuan di peta terlebih dahulu!")
+            return
+        end
+        
+        local gps_address = nil
+        for i, v in ipairs(r) do
+            local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
+            if test ~= 0 then
+                gps_address = v.address
+                break 
+            end
+        end
+        
+        if not gps_address then 
+            gg.toast("❌ GPS tidak ditemukan") 
+            return
+        end
+        
+        local gpsCoords = gg.getValues({
+            {address = gps_address - 0x14, flags = gg.TYPE_FLOAT},
+            {address = gps_address - 0x10, flags = gg.TYPE_FLOAT},
+            {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}
+        })
+        
+        if gpsCoords[1].value == 0 or gpsCoords[2].value == 0 then
+            gg.toast("❌ Koordinat GPS tidak valid")
+            return
+        end
+        
+        teleportPlayer(gpsCoords[1].value, gpsCoords[2].value, gpsCoords[3].value)
+        gg.toast("✅ Teleport ke GPS!")
+
+    elseif menu == 2 then
+        TP_GPS_Fly()
+    elseif menu == 3 then
+        TP_GPS_FlyWithAltitude()
+    elseif menu == 4 then
+        FlyModeGPS()
+    elseif menu == 5 then
+        findVehicleAddresses()
+    end
+end
+
+-- ==========================================
 -- MENU PRINCIPAL
 -- ==========================================
 
@@ -3004,6 +3438,7 @@ function menu_principal()
     local mainMenu = gg.choice({
         "👽 MENU PEMAIN",
         "🌍 TELEPORT",
+        "🚩 TP KENDARAAN",
         "💸 MENU AUTO FARM",
         "🏎️SPEED KENDARAAN",
         "👨‍💻 CREATOR",
@@ -3016,12 +3451,14 @@ function menu_principal()
         elseif mainMenu == 2 then
         menuTeleportInstan()
         elseif mainMenu == 3 then
-        menuFarm()
+        kendaraanGPS()
         elseif mainMenu == 4 then
-        Menu_vehicle()
+        menuFarm()
         elseif mainMenu == 5 then
-        mostrarCriadores()
+        Menu_vehicle()
         elseif mainMenu == 6 then
+        mostrarCriadores()
+        elseif mainMenu == 7 then
         sair()
     end
 end
