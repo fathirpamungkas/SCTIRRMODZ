@@ -48,7 +48,7 @@ local senhasValidas = {
         usuario = "PREMIUM", 
         dispositivos = "0", 
         criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 11, hora = 10, min = 00
+        ano = 2026, mes = 7, dia = 12, hora = 01, min = 20
     },
    -- ====================================================
  ["DJAROTEXP"] = {
