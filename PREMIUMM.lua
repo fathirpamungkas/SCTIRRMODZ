@@ -16,11 +16,11 @@ local senhasValidas = {
         ano = 2028, mes = 7, dia = 20, hora = 10, min = 00
     }, 
     --=====================================================
-    ["ZIZZ"] = {
+    ["ANDRE"] = {
         usuario = "PREMIUM",
         dispositivos = "1",
         criado = "01/01/2026 H08:00",
-        ano = 2026, mes = 6, dia = 30, hora = 10, min = 00 
+        ano = 2026, mes = 7, dia = 9, hora = 21, min = 00 
     },
    -- =====================================================
  ["KINGTIR"] = {
