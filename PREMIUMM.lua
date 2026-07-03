@@ -57,6 +57,20 @@ local senhasValidas = {
         criado = "01/01/2026 H00:00", 
         ano = 2026, mes = 7, dia = 6, hora = 10, min = 00
     },
+       -- ====================================================
+ ["SKYLINE"] = {
+        usuario = "PREMIUM", 
+        dispositivos = "0", 
+        criado = "01/01/2026 H00:00", 
+        ano = 2026, mes = 7, dia = 4, hora = 19, min = 00
+    },
+       -- ====================================================
+ ["FORJI"] = {
+        usuario = "PREMIUM", 
+        dispositivos = "0", 
+        criado = "01/01/2026 H00:00", 
+        ano = 2026, mes = 7, dia = 6, hora = 23, min = 00
+    },
   -- =====================================================
 ["ICHTIAR"] = {
         usuario = "PREMIUM", 
