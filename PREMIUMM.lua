@@ -451,6 +451,7 @@ function MenuPremium2()
         "🎯 AIM KILL",
         "🏍️ LIGA MOTOR",
         "📷 ZOOM CAMERA ",
+        "👽 BLINK TP",
         "📢 TEMBUS TEMBOK",
         "◀️ KEMBALI"
     }, nil, "💎 MENU PREMIUM")
@@ -460,7 +461,8 @@ function MenuPremium2()
     elseif escolha == 3 then LigaMotoOn()
     elseif escolha == 4 then esticada()
     elseif escolha == 5 then modoToggleSpamIlimitado()
-    elseif escolha == 6 then menu_principal()
+    elseif escolha == 6 then wallhack()
+    elseif escolha == 7 then menu_principal()
     end
 end
 
@@ -1762,7 +1764,29 @@ local Criadores = {
 }
 local linha_divisoria = "━━━━━━━━━━━━━━━━━━━━━"
 
+function wallhack()
+wallhack1 = gg.choice({"Mengaktifkan", "Menonaktifkan", "◀️Kembali"}, nil, versao)
 
+   if wallhack1 == 1 then wallon() end
+   if wallhack1 == 2 then walloff() end
+   if wallhack1 == 3 then loop(menupremium,"prin") end
+end
+
+function wallon()
+   gg.searchNumber("60", gg.TYPE_FLOAT)
+   gg.getResults(99999)
+   gg.editAll("60.7", gg.TYPE_FLOAT)
+   gg.toast("Wall hack ON")
+   gg.clearResults()
+end
+
+function walloff()
+   gg.searchNumber("60.7", gg.TYPE_FLOAT)
+   gg.getResults(99999)
+   gg.editAll("60", gg.TYPE_FLOAT)
+   gg.toast("Wall hack OFF")
+   gg.clearResults()
+end
 function ativarspeed(velocidade)
   if speedWalkCache.addresses then
     local edits = {}
