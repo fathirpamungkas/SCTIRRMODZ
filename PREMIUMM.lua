@@ -37,11 +37,11 @@ local senhasValidas = {
         ano = 2026, mes = 7, dia = 4, hora = 10, min = 00
     },
   -- ====================================================
-  ["JAMESROB"] = {
+  ["FUNIX"] = {
         usuario = "PREMIUM", 
         dispositivos = "1", 
         criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 1, hora = 10, min = 00
+        ano = 2026, mes = 7, dia = 12, hora = 10, min = 00
     },
   -- ====================================================
   ["LOPEZZZ"] = {
@@ -461,7 +461,7 @@ function MenuPremium2()
     elseif escolha == 3 then LigaMotoOn()
     elseif escolha == 4 then esticada()
     elseif escolha == 5 then modoToggleSpamIlimitado()
-    elseif escolha == 6 then wallhack()
+    elseif escolha == 6 then WallHackMenu()
     elseif escolha == 7 then menu_principal()
     end
 end
@@ -702,6 +702,112 @@ function TP_GPS()
     end
 end
 
+function GPS_AUTOMATICO_VEICULO()
+    if not addrZ and not buscarBasePlayer() then return end
+    
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber(gps_qword, gg.TYPE_QWORD)
+    local r = gg.getResults(50)
+    if #r == 0 then
+        gg.alert("❌ TANDAI TUJUAN DI PETA TERLEBIH DAHULU!")
+        return
+    end
+    
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        local test = gg.getValues({{address = v.address - gps_offZ, flags = gg.TYPE_FLOAT}})[1].value
+        if test ~= 0 then
+            gps_address = v.address
+            break
+        end
+    end
+    
+    if not gps_address then
+        gg.alert("❌ GPS TIDAK DITEMUKAN")
+        return
+    end
+    
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber(gps_qword, gg.TYPE_QWORD)
+    local resVeiculo = gg.getResults(100)
+    if #resVeiculo == 0 then
+        gg.alert("❌ KENDARAAN TIDAK DITEMUKAN! SILAKAN NAIK KE KENDARAAN TERLEBIH DAHULU..")
+        return
+    end
+    
+    local veiculoAddress = nil
+    local playerPos = gg.getValues({
+        {address = addrX, flags = gg.TYPE_FLOAT},
+        {address = addrY, flags = gg.TYPE_FLOAT},
+        {address = addrZ, flags = gg.TYPE_FLOAT}
+    })
+    
+    for i, v in ipairs(resVeiculo) do
+        local testPos = gg.getValues({
+            {address = v.address + 0x20, flags = gg.TYPE_FLOAT},
+            {address = v.address + 0x24, flags = gg.TYPE_FLOAT},
+            {address = v.address + 0x28, flags = gg.TYPE_FLOAT}
+        })
+        
+        if testPos[1].value ~= 0 or testPos[2].value ~= 0 or testPos[3].value ~= 0 then
+            local dx = testPos[1].value - playerPos[1].value
+            local dy = testPos[2].value - playerPos[2].value
+            local dz = testPos[3].value - playerPos[3].value
+            local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+            
+            if dist < 50 then
+                veiculoAddress = v.address
+                break
+            end
+        end
+    end
+    
+    if not veiculoAddress then
+        gg.alert("❌ KENDARAAN TIDAK DITEMUKAN! SILAKAN MASUKKAN KENDARAAN TERLEBIH DAHULU..")
+        return
+    end
+    
+    local veiculoX = veiculoAddress + 0x20
+    local veiculoY = veiculoAddress + 0x24
+    local veiculoZ = veiculoAddress + 0x28
+    
+    gpsAtivo = true
+    gg.toast("🚗 MENUJU LOKASI PEMERIKSAAN DENGAN KENDARAAN...")
+    
+    while gpsAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            local p = gg.alert("🚗 GPS KENDARAAN AKTIF", "🛑 BERHENTI", "▶️ LANJUTKAN")
+            if p == 1 then gpsAtivo = false break end
+        end
+        
+        antiKick()
+        
+        local atual = gg.getValues({
+            {address = gps_address - gps_offZ, flags = gg.TYPE_FLOAT},
+            {address = gps_address - gps_offX, flags = gg.TYPE_FLOAT},
+            {address = gps_address - gps_offY, flags = gg.TYPE_FLOAT}
+        })
+        
+        if atual[1].value ~= 0 then
+            gg.setValues({
+                {address = veiculoX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                {address = veiculoY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                {address = veiculoZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
+            })
+            
+            gg.setValues({
+                {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = atual[1].value + 1.5, flags = gg.TYPE_FLOAT}
+            })
+        end
+        
+        gg.sleep(300)
+    end
+end
 -- ==========================================
 -- FUNÇÕES FARM FAZENDA E MINA
 -- ==========================================
@@ -1197,42 +1303,936 @@ function farmMinaTPCorrigido()
 end
 
 -- ==========================================
--- FUNÇÕES FARM ÔNIBUS
+-- FARM FAZENDA BLABEIDI
 -- ==========================================
+function gravarRotaFazendaBlabeidi()
+    if not addrZ and not buscarBasePlayer() then 
+        gg.toast("❌ Player não encontrado!")
+        return nil
+    end
+    
+    gg.alert(
+        "🌾 REKAM JALUR - PERTANIAN\n\n" ..
+        "1️⃣ Pergilah ke titik yang diinginkan di lahan pertanian tersebut.\n" ..
+        "2️⃣ Klik ikon GG untuk menyimpan.\n" ..
+        "3️⃣ Ulangi untuk semua titik.\n" ..
+        "4️⃣ Klik 'SELESAI' setelah Anda selesai.\n\n" ..
+        "📌 Minimal: Diperlukan 2 poin.\n" ..
+        "🛡️ ANTI-KICK AKTIF!",
+        "DIPAHAMI"
+    )
+    
+    local rotaGravada = {}
+    local gravando = true
+    
+    while gravando do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            
+            local pos = gg.getValues({
+                {address = addrX, flags = gg.TYPE_FLOAT},
+                {address = addrY, flags = gg.TYPE_FLOAT},
+                {address = addrZ, flags = gg.TYPE_FLOAT}
+            })
+            
+            local opcao = gg.alert(
+                "📍 Ponto " .. (#rotaGravada + 1) .. "\n" ..
+                "X: " .. string.format("%.2f", pos[1].value) .. "\n" ..
+                "Y: " .. string.format("%.2f", pos[2].value) .. "\n" ..
+                "Z: " .. string.format("%.2f", pos[3].value) .. "\n\n" ..
+                "📊 Poin tersimpan: " .. #rotaGravada,
+                "💾 MENYIMPAN",
+                "🗑️ MENGHAPUS",
+                "✅ SELESAI"
+            )
+            
+            if opcao == 1 then
+                table.insert(rotaGravada, {
+                    x = pos[1].value,
+                    y = pos[2].value,
+                    z = pos[3].value,
+                    nome = "🌾 BIDANG " .. (#rotaGravada + 1)
+                })
+                gg.toast("✅ Titik " .. #rotaGravada .. " salvo!")
+                
+            elseif opcao == 2 then
+                if #rotaGravada > 0 then
+                    table.remove(rotaGravada)
+                    gg.toast("🗑️ POIN TERAKHIR DIHAPUS!")
+                end
+                
+            elseif opcao == 3 then
+                if #rotaGravada < 2 then
+                    gg.alert("❌ MINIMAL 2 POIN DIPERLUKAN!")
+                    return nil
+                end
+                gravando = false
+                gg.toast("✅ RUTE DIREKAM DENGAN " .. #rotaGravada .. " LOKASI!")
+            end
+        end
+        antiKick()
+        gg.sleep(100)
+    end
+    
+    return rotaGravada
+end
+
+function executarFarmFazendaBlabeidi(rota, velocidade, tempoEspera, distMinima)
+    if not rota or #rota < 2 then
+        gg.toast("❌ RUTE TIDAK DITEMUKAN!")
+        return false
+    end
+    
+    if farmFazendaBlabeidiAtivo then
+        gg.toast("⏳ PETERNAKAN TERSEBUT SUDAH BEROPERASI.!")
+        return false
+    end
+    
+    if not addrZ and not buscarBasePlayer() then
+        gg.toast("❌ PEMAIN TIDAK DITEMUKAN!")
+        return false
+    end
+    
+    farmFazendaBlabeidiAtivo = true
+    checkpointAtualFazenda = 1
+    ciclosFazenda = 0
+    coletasFazenda = 0
+    local tempoInicio = os.time()
+    
+    gg.toast("🌾 PERTANIAN DIMULAI DENGAN ANTI-KICK!")
+    
+    while farmFazendaBlabeidiAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            
+            local tempoDecorrido = os.time() - tempoInicio
+            local minutos = math.floor(tempoDecorrido / 60)
+            local segundos = tempoDecorrido % 60
+            
+            local escolha = gg.alert(
+                "🌾 AUTO PERTANIAN\n" ..
+                "─────────────────\n" ..
+                "📍 LOKASI: " .. checkpointAtualFazenda .. "/" .. #rota .. "\n" ..
+                "🔄 SIKLUS: " .. ciclosFazenda .. "\n" ..
+                "📦 KOLEKSI: " .. coletasFazenda .. "\n" ..
+                "⏱️ WAKTU: " .. string.format("%02d:%02d", minutos, segundos) .. "\n" ..
+                "─────────────────",
+                "🛑 BERHENTI",
+                "⏭️ SKIP",
+                "📊 STATISTIK"
+            )
+            
+            if escolha == 1 then
+                farmFazendaBlabeidiAtivo = false
+                gg.toast("⏹️ BERHENTI BERTANI!")
+                break
+            elseif escolha == 2 then
+                checkpointAtualFazenda = checkpointAtualFazenda + 1
+                if checkpointAtualFazenda > #rota then checkpointAtualFazenda = 1 end
+                gg.toast("⏭️ Pulando para ponto " .. checkpointAtualFazenda)
+            elseif escolha == 3 then
+                gg.alert(
+                    "📊 STATISTIK\n\n" ..
+                    "📍 LOKASI: " .. #rota .. "\n" ..
+                    "🔄 SIKLUS: " .. ciclosFazenda .. "\n" ..
+                    "📦 KOLEKSI: " .. coletasFazenda .. "\n" ..
+                    "⏱️ WAKTU: " .. string.format("%02d:%02d", minutos, segundos) .. "\n" ..
+                    "⚡ KECEPATAN: " .. velocidade .. "x\n" ..
+                    "⏳ TUNGGU: " .. tempoEspera .. "s",
+                    "OK"
+                )
+            end
+        end
+        
+        antiKick()
+        
+        local alvo = rota[checkpointAtualFazenda]
+        local pos = gg.getValues({
+            {address = addrX, flags = gg.TYPE_FLOAT},
+            {address = addrY, flags = gg.TYPE_FLOAT},
+            {address = addrZ, flags = gg.TYPE_FLOAT}
+        })
+        
+        local dx = alvo.x - pos[1].value
+        local dy = alvo.y - pos[2].value
+        local dz = alvo.z - pos[3].value
+        local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+        
+        if dist < distMinima then
+            coletasFazenda = coletasFazenda + 1
+            gg.toast("🌾 MENGUMPULKAN DI: " .. alvo.nome)
+            
+            for i = 1, tempoEspera do
+                if not farmFazendaBlabeidiAtivo then break end
+                antiKick()
+                gg.sleep(1000)
+            end
+            
+            checkpointAtualFazenda = checkpointAtualFazenda + 1
+            if checkpointAtualFazenda > #rota then
+                checkpointAtualFazenda = 1
+                ciclosFazenda = ciclosFazenda + 1
+                gg.toast("🔄 SIKLUS " .. ciclosFazenda .. " completo!")
+            end
+        else
+            local passo = velocidade / 10
+            local nx = pos[1].value + (dx / dist) * passo
+            local ny = pos[2].value + (dy / dist) * passo
+            local nz = pos[3].value + (dz / dist) * passo
+            
+            gg.setValues({
+                {address = addrX, value = nx, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = ny, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = nz, flags = gg.TYPE_FLOAT}
+            })
+        end
+        
+        gg.sleep(50)
+    end
+    
+    return true
+end
+
+function menuFarmFazendaBlabeidi()
+    local opcao = gg.choice({
+        "🆕 REKAM RUTE BARU",
+        "📋 MUAT RUTE DEFAULT",
+        "▶️ MEMULAI PERTANIAN",
+        "⏹️ BERHENTI",
+        "📊 LIHAT RUTE SAAT INI",
+        "↩️ KEMBALI"
+    }, nil, "🌾 AUTO FARM PETERNAKAN")
+    
+    if opcao == 1 then
+        local novaRota = gravarRotaFazendaBlabeidi()
+        if novaRota then
+            rotaFazendaBlabeidi = novaRota
+            gg.toast("✅ RUTE TERSIMPAN DENGAN " .. #rotaFazendaBlabeidi .. " LOKASI!")
+        end
+        
+    elseif opcao == 2 then
+        rotaFazendaBlabeidi = {}
+        for i, ponto in ipairs(rotaPadraoFazendaBlabeidi) do
+            table.insert(rotaFazendaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
+        end
+        gg.toast("✅ RUTE STANDAR YANG SARAT DENGAN " .. #rotaFazendaBlabeidi .. " LOKASI!")
+        
+    elseif opcao == 3 then
+        if #rotaFazendaBlabeidi < 2 then
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            return
+        end
+        
+        local config = gg.prompt({
+            "⚡ KECEPATAN:",
+            "⏱️ WAKTU TUNGGU (DETIK)):",
+            "📏 JARAK MINIMUM:"
+        }, {
+            tostring(SPEED_FAZENDA),
+            tostring(TEMPO_ESPERA_PADRAO),
+            tostring(DIST_MIN)
+        }, {"number", "number", "number"})
+        
+        if config then
+            local velocidade = tonumber(config[1]) or SPEED_FAZENDA
+            local tempoEspera = tonumber(config[2]) or TEMPO_ESPERA_PADRAO
+            local distMinima = tonumber(config[3]) or DIST_MIN
+            
+            executarFarmFazendaBlabeidi(rotaFazendaBlabeidi, velocidade, tempoEspera, distMinima)
+        end
+        
+    elseif opcao == 4 then
+        if farmFazendaBlabeidiAtivo then
+            farmFazendaBlabeidiAtivo = false
+            gg.toast("⏹️ PETERNAKAN BERHENTI BEROPERASI!")
+        else
+            gg.toast("📴 TIDAK ADA PERTANIAN YANG BEROPERASI.")
+        end
+        
+    elseif opcao == 5 then
+        if #rotaFazendaBlabeidi == 0 then
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            return
+        end
+        
+        local texto = "📋 RUTE SAAT INI - PERTANIAN\n\n"
+        for i, ponto in ipairs(rotaFazendaBlabeidi) do
+            texto = texto .. string.format(
+                "📍 %s: X:%.2f Y:%.2f Z:%.2f\n",
+                ponto.nome, ponto.x, ponto.y, ponto.z
+            )
+        end
+        gg.alert(texto, "OK")
+    end
+end
+
+-- ==========================================
+-- FARM MINA BLABEIDI
+-- ==========================================
+function gravarRotaMinaBlabeidi()
+    if not addrZ and not buscarBasePlayer() then 
+        gg.toast("❌ Player não encontrado!")
+        return nil
+    end
+    
+    gg.alert(
+        "⛏️REKAM JALUR - TAMBANG\n\n" ..
+        "1️⃣ Pergilah ke titik yang diinginkan di dalam tambang.\n" ..
+        "2️⃣ Klik ikon GG untuk menyimpan.\n" ..
+        "3️⃣ Ulangi untuk semua titik.\n" ..
+        "4️⃣ Klik 'SELESAI' setelah selesai.\n\n" ..
+        "📌 Minimal: Diperlukan 2 poin.\n" ..
+        "🛡️ ANTI-KICK AKTIF!",
+        "ENTENDIDO"
+    )
+    
+    local rotaGravada = {}
+    local gravando = true
+    
+    while gravando do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            
+            local pos = gg.getValues({
+                {address = addrX, flags = gg.TYPE_FLOAT},
+                {address = addrY, flags = gg.TYPE_FLOAT},
+                {address = addrZ, flags = gg.TYPE_FLOAT}
+            })
+            
+            local opcao = gg.alert(
+                "📍 LOKASI " .. (#rotaGravada + 1) .. "\n" ..
+                "X: " .. string.format("%.2f", pos[1].value) .. "\n" ..
+                "Y: " .. string.format("%.2f", pos[2].value) .. "\n" ..
+                "Z: " .. string.format("%.2f", pos[3].value) .. "\n\n" ..
+                "📊 LOKASI: " .. #rotaGravada,
+                "💾 MENYIMPAN",
+                "🗑️ MENGHAPUS",
+                "✅ MENYELESAIKAN"
+            )
+            
+            if opcao == 1 then
+                table.insert(rotaGravada, {
+                    x = pos[1].value,
+                    y = pos[2].value,
+                    z = pos[3].value,
+                    nome = "⛏️ PONTO " .. (#rotaGravada + 1)
+                })
+                gg.toast("✅ LOKASI " .. #rotaGravada .. " TERSIMPAN!")
+                
+            elseif opcao == 2 then
+                if #rotaGravada > 0 then
+                    table.remove(rotaGravada)
+                    gg.toast("🗑️ LOKASI DIHAPUS !")
+                end
+                
+            elseif opcao == 3 then
+                if #rotaGravada < 2 then
+                    gg.alert("❌ MINIMAL 2 POIN DIPERLUKAN.!")
+                    return nil
+                end
+                gravando = false
+                gg.toast("✅ RUTE DIREKAM DENGAN " .. #rotaGravada .. " LOKASI!")
+            end
+        end
+        antiKick()
+        gg.sleep(100)
+    end
+    
+    return rotaGravada
+end
+
+function executarFarmMinaBlabeidi(rota, velocidade, tempoEspera, distMinima)
+    if not rota or #rota < 2 then
+        gg.toast("❌ RUTE TIDAK VALID!")
+        return false
+    end
+    
+    if farmMinaBlabeidiAtivo then
+        gg.toast("⏳ PETERNAKAN TERSEBUT SUDAH BEROPERASI.!")
+        return false
+    end
+    
+    if not addrZ and not buscarBasePlayer() then
+        gg.toast("❌ PEMAIN TIDAK DITEMUKAN!")
+        return false
+    end
+    
+    farmMinaBlabeidiAtivo = true
+    checkpointAtualMina = 1
+    ciclosMina = 0
+    coletasMina = 0
+    local tempoInicio = os.time()
+    
+    gg.toast("⛏️ AUTO TAMBANG DIMULAI DENGAN ANTI-KICK!")
+    
+    while farmMinaBlabeidiAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            
+            local tempoDecorrido = os.time() - tempoInicio
+            local minutos = math.floor(tempoDecorrido / 60)
+            local segundos = tempoDecorrido % 60
+            
+            local escolha = gg.alert(
+                "⛏️ MINA BLABEIDI\n" ..
+                "─────────────────\n" ..
+                "📍 LOKASI: " .. checkpointAtualMina .. "/" .. #rota .. "\n" ..
+                "🔄 SIKLUS: " .. ciclosMina .. "\n" ..
+                "📦 KOLEKSI: " .. coletasMina .. "\n" ..
+                "⏱️ WAKTU: " .. string.format("%02d:%02d", minutos, segundos) .. "\n" ..
+                "─────────────────",
+                "🛑 BERHENTI",
+                "⏭️ SKIP",
+                "📊 STATISTIK"
+            )
+            
+            if escolha == 1 then
+                farmMinaBlabeidiAtivo = false
+                gg.toast("⏹️ PERTANIAN TERGANGGU!")
+                break
+            elseif escolha == 2 then
+                checkpointAtualMina = checkpointAtualMina + 1
+                if checkpointAtualMina > #rota then checkpointAtualMina = 1 end
+                gg.toast("⏭️ Pulando para ponto " .. checkpointAtualMina)
+            elseif escolha == 3 then
+                gg.alert(
+                    "📊 STATISTIK\n\n" ..
+                    "📍 LOKASI: " .. #rota .. "\n" ..
+                    "🔄 SIKLUS: " .. ciclosMina .. "\n" ..
+                    "📦 KOLEKSI: " .. coletasMina .. "\n" ..
+                    "⏱️ WAKTU: " .. string.format("%02d:%02d", minutos, segundos) .. "\n" ..
+                    "⚡ KECEPATAN: " .. velocidade .. "x\n" ..
+                    "⏳ TUNGGU: " .. tempoEspera .. "s",
+                    "OK"
+                )
+            end
+        end
+        
+        antiKick()
+        
+        local posY = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+        if posY and posY[1] and posY[1].value < 900 then
+            gg.toast("⚠️ Void detectado! Teleportando...")
+            TP(pontoSeguroMina.x, pontoSeguroMina.y, pontoSeguroMina.z)
+            gg.sleep(500)
+            checkpointAtualMina = 1
+        else
+            local alvo = rota[checkpointAtualMina]
+            local pos = gg.getValues({
+                {address = addrX, flags = gg.TYPE_FLOAT},
+                {address = addrY, flags = gg.TYPE_FLOAT},
+                {address = addrZ, flags = gg.TYPE_FLOAT}
+            })
+            
+            local dx = alvo.x - pos[1].value
+            local dy = alvo.y - pos[2].value
+            local dz = alvo.z - pos[3].value
+            local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+            
+            if dist < distMinima then
+                coletasMina = coletasMina + 1
+                gg.toast("⛏️ MENGUMPULKAN DI: " .. alvo.nome)
+                
+                for i = 1, tempoEspera do
+                    if not farmMinaBlabeidiAtivo then break end
+                    antiKick()
+                    gg.sleep(1000)
+                end
+                
+                checkpointAtualMina = checkpointAtualMina + 1
+                if checkpointAtualMina > #rota then
+                    checkpointAtualMina = 1
+                    ciclosMina = ciclosMina + 1
+                    gg.toast("🔄 SIKLUS " .. ciclosMina .. " COMPLETE!")
+                end
+            else
+                local passo = velocidade / 10
+                local nx = pos[1].value + (dx / dist) * passo
+                local ny = pos[2].value + (dy / dist) * passo
+                local nz = pos[3].value + (dz / dist) * passo
+                
+                gg.setValues({
+                    {address = addrX, value = nx, flags = gg.TYPE_FLOAT},
+                    {address = addrY, value = ny, flags = gg.TYPE_FLOAT},
+                    {address = addrZ, value = nz, flags = gg.TYPE_FLOAT}
+                })
+            end
+        end
+        
+        gg.sleep(50)
+    end
+    
+    return true
+end
+
+function menuFarmMinaBlabeidi()
+    local opcao = gg.choice({
+        "🆕 REKAM RUTE BARU",
+        "📋 MUAT RUTE DEFAULT",
+        "▶️ MEMULAI PERTAMBANGAN",
+        "⏹️ BERHENTI MENAMBANG",
+        "📊 LIHAT RUTE SAAT INI",
+        "↩️ KEMBALI"
+    }, nil, "⛏️ FARM TAMBANG 2")
+    
+    if opcao == 1 then
+        local novaRota = gravarRotaMinaBlabeidi()
+        if novaRota then
+            rotaMinaBlabeidi = novaRota
+            gg.toast("✅ RUTE TERSIMPAN DENGAN " .. #rotaMinaBlabeidi .. " LOKASI!")
+        end
+        
+    elseif opcao == 2 then
+        rotaMinaBlabeidi = {}
+        for i, ponto in ipairs(rotaPadraoMinaBlabeidi) do
+            table.insert(rotaMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
+        end
+        gg.toast("✅ RUTE STANDAR YANG DIISI DENGAN " .. #rotaMinaBlabeidi .. " LOKASI!")
+        
+    elseif opcao == 3 then
+        if #rotaMinaBlabeidi < 2 then
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            return
+        end
+        
+        local config = gg.prompt({
+            "⚡ KECEPATAN:",
+            "⏱️ WAKTU TUNGGU (DETIK)):",
+            "📏 JARAK MINIMUM:"
+        }, {
+            tostring(SPEED_MINA),
+            tostring(TEMPO_ESPERA_PADRAO),
+            tostring(DIST_MIN)
+        }, {"number", "number", "number"})
+        
+        if config then
+            local velocidade = tonumber(config[1]) or SPEED_MINA
+            local tempoEspera = tonumber(config[2]) or TEMPO_ESPERA_PADRAO
+            local distMinima = tonumber(config[3]) or DIST_MIN
+            
+            executarFarmMinaBlabeidi(rotaMinaBlabeidi, velocidade, tempoEspera, distMinima)
+        end
+        
+    elseif opcao == 4 then
+        if farmMinaBlabeidiAtivo then
+            farmMinaBlabeidiAtivo = false
+            gg.toast("⏹️ PERTANIAN MINA BLABEIDI BERHENTI!")
+        else
+            gg.toast("📴 TIDAK ADA KEGIATAN PERTANIAN")
+        end
+        
+    elseif opcao == 5 then
+        if #rotaMinaBlabeidi == 0 then
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            return
+        end
+        
+        local texto = "📋 RUTE SAAT INI - TAMBANG\n\n"
+        for i, ponto in ipairs(rotaMinaBlabeidi) do
+            texto = texto .. string.format(
+                "📍 %s: X:%.2f Y:%.2f Z:%.2f\n",
+                ponto.nome, ponto.x, ponto.y, ponto.z
+            )
+        end
+        gg.alert(texto, "OK")
+    end
+end
+
+-- ==========================================
+-- FARM FAZENDA EMBAIXO DA TERRA (7 CHECKPOINTS + SUBIDA)
+-- ==========================================
+function gravarRotaFazendaTerra()
+    if not addrZ and not buscarBasePlayer() then 
+        gg.toast("❌ PEMAIN TIDAK DITEMUKAN!")
+        return nil
+    end
+    
+    gg.alert(
+        "🌾 REKOR RUTE - PERTANIAN PERMUKAAN TANAH\n\n" ..
+        "1️⃣ Pergi ke titik yang diinginkan di lahan pertanian (PERMUKAAN))\n" ..
+        "2️⃣ Klik ikon GG untuk menyimpan.\n" ..
+        "3️⃣ Ulangi langkah ini untuk semua 7 titik.\n" ..
+        "4️⃣ Lokasi ke-8 akan ditambahkan SECARA OTOMATIS.\n" ..
+        "   untuk memindahkanmu ke PERMUKAAN TANAH!\n" ..
+        "5️⃣ Setelah dikumpulkan, tulisan SUBE muncul ke permukaan.\n\n" ..
+        "📌 Minimal: Diperlukan 7 Lokasi.\n" ..
+        "🛡️ ANTI-KICK AKTIF!",
+        "DIPAHAMI"
+    )
+    
+    local rotaGravada = {}
+    local gravando = true
+    local MAX_PONTOS = 7
+    
+    gg.toast("📍 KUBURAN " .. MAX_PONTOS .. " TITIK-TITIK DI PERTANIAN (PERMUKAAN))")
+    
+    while gravando do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            
+            local pos = gg.getValues({
+                {address = addrX, flags = gg.TYPE_FLOAT},
+                {address = addrY, flags = gg.TYPE_FLOAT},
+                {address = addrZ, flags = gg.TYPE_FLOAT}
+            })
+            
+            local opcao = gg.alert(
+                "📍 LOKASI " .. (#rotaGravada + 1) .. "/" .. MAX_PONTOS .. "\n" ..
+                "X: " .. string.format("%.2f", pos[1].value) .. "\n" ..
+                "Y: " .. string.format("%.2f", pos[2].value) .. "\n" ..
+                "Z: " .. string.format("%.2f", pos[3].value) .. "\n\n" ..
+                "📊 LOKASI TERSIMPAN: " .. #rotaGravada,
+                "💾 MENYIMPAN",
+                "🗑️ PENGHILANG",
+                "✅ MENYELESAIKAN"
+            )
+            
+            if opcao == 1 then
+                if #rotaGravada < MAX_PONTOS then
+                    table.insert(rotaGravada, {
+                        x = pos[1].value,
+                        y = pos[2].value,
+                        z = pos[3].value,
+                        nome = "🌾 BIDANG " .. (#rotaGravada + 1)
+                    })
+                    gg.toast("✅ LOKASI " .. #rotaGravada .. " TERSIMPAN! (" .. #rotaGravada .. "/" .. MAX_PONTOS .. ")")
+                else
+                    gg.toast("⚠️ INI SUDAH MENCAPAI BATAS MAKSIMUMNYA. " .. MAX_PONTOS .. " LOKASI!")
+                end
+                
+            elseif opcao == 2 then
+                if #rotaGravada > 0 then
+                    table.remove(rotaGravada)
+                    gg.toast("🗑️ LOKASI DIHAPUS! (" .. #rotaGravada .. "/" .. MAX_PONTOS .. ")")
+                end
+                
+            elseif opcao == 3 then
+                if #rotaGravada < MAX_PONTOS then
+                    gg.alert("❌ MINIMUM " .. MAX_PONTOS .. " LOKASI PENTING!\nANDA MENYIMPAN: " .. #rotaGravada)
+                else
+                    gravando = false
+                    gg.toast("✅ RUTE DIREKAM DENGAN " .. #rotaGravada .. " LOKASI!")
+                end
+            end
+        end
+        antiKick()
+        gg.sleep(100)
+    end
+    
+    return rotaGravada
+end
+
+function adicionarPontoEmbaixoTerra(rota)
+    if not rota or #rota == 0 then
+        gg.toast("❌ RUTE KOSONG!")
+        return nil
+    end
+    
+    local novaRota = {}
+    for i, ponto in ipairs(rota) do
+        table.insert(novaRota, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
+    end
+    
+    local ultimoPonto = rota[#rota]
+    table.insert(novaRota, {
+        x = ultimoPonto.x,
+        y = -20.0,
+        z = ultimoPonto.z,
+        nome = "🌍 PERMUKAAN TANAH (TP))"
+    })
+    
+    gg.toast("✅ Ponto 'EMBAIXO DA TERRA' adicionado automaticamente!")
+    return novaRota
+end
+
+function executarFarmFazendaTerra(velocidade, tempoEspera, distMinima)
+    if #rotaFazendaTerra < 2 then
+        gg.toast("❌ RUTE TIDAK VALID! DAPATKAN MINIMAL 7 POIN!")
+        return false
+    end
+    
+    if farmFazendaTerraAtivo then
+        gg.toast("⏳ PETERNAKAN TERSEBUT SUDAH BEROPERASI.!")
+        return false
+    end
+    
+    if not addrZ and not buscarBasePlayer() then
+        gg.toast("❌ PEMAIN TIDAK DITEMUKAN!")
+        return false
+    end
+    
+    farmFazendaTerraAtivo = true
+    checkpointAtualTerra = 1
+    ciclosTerra = 0
+    coletasTerra = 0
+    local tempoInicio = os.time()
+    
+    -- Teleporta para o ponto abaixo da terra (8º ponto)
+    local ultimoPonto = rotaFazendaTerra[#rotaFazendaTerra]
+    TP(ultimoPonto.x, ultimoPonto.y, ultimoPonto.z)
+    gg.sleep(500)
+    
+    gg.toast("🌾 Pertanian Bawah Tanah Dimulai!")
+    gg.toast("⚠️ KAMU BERADA DI LOKASI! MENGUMPULKAN...")
+    
+    while farmFazendaTerraAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            
+            local tempoDecorrido = os.time() - tempoInicio
+            local minutos = math.floor(tempoDecorrido / 60)
+            local segundos = tempoDecorrido % 60
+            
+            local escolha = gg.alert(
+                "🌾 AUTO FARM PERTANIAN\n" ..
+                "─────────────────────────\n" ..
+                "📍 POINTER: " .. checkpointAtualTerra .. "/" .. (#rotaFazendaTerra - 1) .. "\n" ..
+                "🔄 Siklus: " .. ciclosTerra .. "\n" ..
+                "📦 Koleksi: " .. coletasTerra .. "\n" ..
+                "⏱️ Waktu: " .. string.format("%02d:%02d", minutos, segundos) .. "\n" ..
+                "─────────────────────────",
+                "🛑 BERHENTI",
+                "⏭️ SKIP",
+                "📊 STATISTIK"
+            )
+            
+            if escolha == 1 then
+                farmFazendaTerraAtivo = false
+                TP(pontoSuperficie.x, pontoSuperficie.y, pontoSuperficie.z)
+                gg.toast("⏹️ KEGIATAN DI PERTANIAN TERGANGGU! KEMBALI KE PERMUKAAN.!")
+                break
+            elseif escolha == 2 then
+                checkpointAtualTerra = checkpointAtualTerra + 1
+                if checkpointAtualTerra > (#rotaFazendaTerra - 1) then 
+                    checkpointAtualTerra = 1 
+                    ciclosTerra = ciclosTerra + 1
+                    gg.toast("🔄 Siklus " .. ciclosTerra .. " Sukses!")
+                    TP(rotaFazendaTerra[#rotaFazendaTerra].x, -20.0, rotaFazendaTerra[#rotaFazendaTerra].z)
+                    gg.sleep(300)
+                end
+                gg.toast("⏭️ Pulando para ponto " .. checkpointAtualTerra)
+            elseif escolha == 3 then
+                gg.alert(
+                    "📊 STATISTIK\n\n" ..
+                    "📍 LOKASI: " .. (#rotaFazendaTerra - 1) .. "\n" ..
+                    "🔄 SIKLUS: " .. ciclosTerra .. "\n" ..
+                    "📦 KOLEKSI: " .. coletasTerra .. "\n" ..
+                    "⏱️ WAKTU: " .. string.format("%02d:%02d", minutos, segundos) .. "\n" ..
+                    "⚡ KECEPATAN: " .. velocidade .. "x\n" ..
+                    "⏳ TUNGGU: " .. tempoEspera .. "s\n" ..
+                    "🌍 LOKASI: PERMUKAAN TANAH",
+                    "OK"
+                )
+            end
+        end
+        
+        antiKick()
+        
+        -- Verifica se está abaixo da terra
+        local posY = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+        if posY[1].value > 0 then
+            gg.toast("⚠️ ANDA BERADA DI PERMUKAAN! BERTELEPORTASI KE PERMUKAAN TANAH...")
+            TP(rotaFazendaTerra[#rotaFazendaTerra].x, -20.0, rotaFazendaTerra[#rotaFazendaTerra].z)
+            gg.sleep(500)
+        end
+        
+        local alvo = rotaFazendaTerra[checkpointAtualTerra]
+        local pos = gg.getValues({
+            {address = addrX, flags = gg.TYPE_FLOAT},
+            {address = addrY, flags = gg.TYPE_FLOAT},
+            {address = addrZ, flags = gg.TYPE_FLOAT}
+        })
+        
+        local dx = alvo.x - pos[1].value
+        local dy = alvo.y - pos[2].value
+        local dz = alvo.z - pos[3].value
+        local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+        
+        if dist < distMinima then
+            coletasTerra = coletasTerra + 1
+            gg.toast("🌾 MENGUMPULKAN DI: " .. alvo.nome)
+            
+            for i = 1, tempoEspera do
+                if not farmFazendaTerraAtivo then break end
+                antiKick()
+                
+                local checkY = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+                if checkY[1].value > 0 then
+                    gg.setValues({{address = addrY, value = -20.0, flags = gg.TYPE_FLOAT}})
+                end
+                
+                gg.sleep(1000)
+            end
+            
+            local proximoPonto = checkpointAtualTerra + 1
+            
+            if proximoPonto > (#rotaFazendaTerra - 1) then
+                gg.toast("☀️ NAIK KE PERMUKAAN...")
+                TP(alvo.x, 10.735, alvo.z)
+                gg.sleep(300)
+                checkpointAtualTerra = 1
+                ciclosTerra = ciclosTerra + 1
+                gg.toast("🔄 SIKLUS " .. ciclosTerra .. " SELESAI!")
+                
+                TP(rotaFazendaTerra[#rotaFazendaTerra].x, -20.0, rotaFazendaTerra[#rotaFazendaTerra].z)
+                gg.sleep(500)
+            else
+                local prox = rotaFazendaTerra[proximoPonto]
+                gg.toast("⬇️ Indo para: " .. prox.nome)
+                
+                TP(prox.x, -20.0, prox.z)
+                gg.sleep(200)
+                
+                gg.toast("☀️ MUNCUL KE PERMUKAAN DI: " .. prox.nome)
+                TP(prox.x, 10.735, prox.z)
+                gg.sleep(300)
+                
+                gg.toast("⬇️ KEMBALI KE PERMUKAAN TANAH...")
+                TP(prox.x, -20.0, prox.z)
+                gg.sleep(300)
+                
+                checkpointAtualTerra = proximoPonto
+            end
+        else
+            local passo = velocidade / 10
+            local nx = pos[1].value + (dx / dist) * passo
+            local ny = pos[2].value + (dy / dist) * passo
+            local nz = pos[3].value + (dz / dist) * passo
+            
+            gg.setValues({
+                {address = addrX, value = nx, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = ny, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = nz, flags = gg.TYPE_FLOAT}
+            })
+        end
+        
+        gg.sleep(50)
+    end
+    
+    if farmFazendaTerraAtivo == false then
+        TP(pontoSuperficie.x, pontoSuperficie.y, pontoSuperficie.z)
+        gg.toast("☀️ KEMBALI KE PERMUKAAN...")
+    end
+    
+    return true
+end
+
+function menuFarmFazendaTerra()
+    local opcao = gg.choice({
+        "🆕 REKAM 7 POIN",
+        "📋 MUAT RUTE DEFAULT",
+        "▶️ MEMULAI PERTANIAN",
+        "⏹️ BERHENTI BERTANI",
+        "📊 LIHAT RUTE",
+        "↩️ KEMBALI"
+    }, nil, "🌾 AUTO PERTANIAN")
+    
+    if opcao == 1 then
+        local novaRota = gravarRotaFazendaTerra()
+        if novaRota then
+            rotaFazendaTerra = adicionarPontoEmbaixoTerra(novaRota)
+            gg.toast("✅ RUTE TERSELAMATKAN DENGAN " .. #rotaFazendaTerra .. " LOKASI (7 + 1 TP)!")
+        end
+        
+    elseif opcao == 2 then
+        rotaFazendaTerra = {}
+        local rotaPadrao = {
+            {nome = "🌾 BIDANG 1", x = 190.13, y = 10.51, z = -2477.59},
+            {nome = "🌾 BIDANG 2", x = 210.50, y = 10.30, z = -2490.00},
+            {nome = "🌾 BIDANG 3", x = 230.80, y = 10.20, z = -2505.50},
+            {nome = "🌾 BIDANG 4", x = 250.00, y = 10.10, z = -2520.00},
+            {nome = "🌾 BIDANG 5", x = 270.30, y = 10.00, z = -2535.80},
+            {nome = "🌾 BIDANG 6", x = 250.00, y = 10.10, z = -2520.00},
+            {nome = "🌾 BIDANG 7", x = 230.80, y = 10.20, z = -2505.50}
+        }
+        rotaFazendaTerra = adicionarPontoEmbaixoTerra(rotaPadrao)
+        gg.toast("✅ RUTE STANDAR YANG SARAT DENGAN " .. #rotaFazendaTerra .. " poin!")
+        
+    elseif opcao == 3 then
+        if #rotaFazendaTerra < 2 then
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            return
+        end
+        
+        local config = gg.prompt({
+            "⚡ KECEPATAN TP:",
+            "⏱️ WAKTU TUNGGU (Detik):",
+            "📏 JARAK MINIMUM:"
+        }, {
+            tostring(6.0),
+            tostring(6),
+            tostring(1.5)
+        }, {"number", "number", "number"})
+        
+        if config then
+            local velocidade = tonumber(config[1]) or 6.0
+            local tempoEspera = tonumber(config[2]) or 6
+            local distMinima = tonumber(config[3]) or 1.5
+            
+            executarFarmFazendaTerra(velocidade, tempoEspera, distMinima)
+        end
+        
+    elseif opcao == 4 then
+        if farmFazendaTerraAtivo then
+            farmFazendaTerraAtivo = false
+            TP(pontoSuperficie.x, pontoSuperficie.y, pontoSuperficie.z)
+            gg.toast("⏹️ PERTANIAN PERMUKAAN TANAH, BERHENTI!")
+        else
+            gg.toast("📴 TIDAK ADA PERTANIAN YANG BEROPERASI.")
+        end
+        
+    elseif opcao == 5 then
+        if #rotaFazendaTerra == 0 then
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            return
+        end
+        
+        local texto = "📋 RUTE - PERTANIAN BAWAH TANAH\n\n"
+        for i, ponto in ipairs(rotaFazendaTerra) do
+            if i == #rotaFazendaTerra then
+                texto = texto .. "🔽 " .. ponto.nome .. ": X:" .. string.format("%.2f", ponto.x) .. " Y:" .. string.format("%.2f", ponto.y) .. " Z:" .. string.format("%.2f", ponto.z) .. " ⚠️ DI PERMUKAAN\n"
+            else
+                texto = texto .. "📍 " .. ponto.nome .. ": X:" .. string.format("%.2f", ponto.x) .. " Y:" .. string.format("%.2f", ponto.y) .. " Z:" .. string.format("%.2f", ponto.z) .. "\n"
+            end
+        end
+        gg.alert(texto, "OK")
+    end
+end
+
 function inicializarPlayerOnibus()
     if not addrZ then
         if not buscarBasePlayer() then return false end
     end
     playerObtido_Onibus = true
-    gg.toast("✅ Pemain diinisialisasi untuk bus")
+    gg.toast("✅ PEMAIN DIINISIALISASI UNTUK BUS")
     return true
 end
 
 function pesquisarESalvarEnderecos_Onibus()
     gg.clearResults()
-    gg.toast("🔍 Mencari ...")
+    gg.toast("🔍 MENCARI BUS...")
     
     gg.searchNumber("-303~-291", gg.TYPE_FLOAT)
     gg.sleep(500)
     
     local resultadosIniciais = gg.getResults(200)
     if #resultadosIniciais == 0 then
-        gg.toast("❌ Tidak ada alamat yang ditemukan pada pencarian pertama.!")
+        gg.toast("❌ TIDAK ADA ALAMAT YANG DITEMUKAN PADA PENCARIAN PERTAMA.!")
         gg.clearResults()
         return false
     end
     
-    gg.toast("🚶 Gerakkan karakter Anda...")
+    gg.toast("🚶 GERAKKAN KARAKTER ANDA....")
     gg.sleep(3000)
     
     gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
-    gg.toast("🚶 Gerakkan karaktermu lagi...")
+    gg.toast("🚶 GERAKKAN KARAKTERMU LAGI....")
     gg.sleep(2000)
     gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
-    gg.toast("🚌 Pergilah ke sisi bus.")
+    gg.toast("🚌 PERGILAH KE SISI BUS.")
     gg.sleep(2000)
     gg.refineNumber("-303~-291", gg.TYPE_FLOAT)
-    gg.toast("🚌 Naiklah bus dan pergi ke kontainer biru (15 detik)")
+    gg.toast("🚌 NAIKLAH BUS DAN PERGI KE KONTAINER BIRU (15 DETIK)")
     gg.sleep(15000)
     gg.refineNumber("-255~-230", gg.TYPE_FLOAT)
     
@@ -1251,12 +2251,12 @@ function pesquisarESalvarEnderecos_Onibus()
             }
         end
         
-        gg.toast(string.format("✅ %d alamat bus yang tersimpan!", #enderecosY_Onibus))
+        gg.toast(string.format("✅ %d ALAMAT BUS YANG TERSIMPAN!", #enderecosY_Onibus))
         onibusObtido = true
         gg.clearResults()
         return true
     else
-        gg.toast("❌ Tidak ada alamat yang ditemukan setelah penyaringan!")
+        gg.toast("❌ TIDAK ADA ALAMAT YANG DITEMUKAN SETELAH PENYARINGAN.!")
         gg.clearResults()
         return false
     end
@@ -1271,7 +2271,7 @@ function pesquisarCheckpointPreciso_Onibus()
     
     local resultadosIniciais = gg.getResults(200)
     if #resultadosIniciais == 0 then
-        gg.toast("❌ Tidak ada hasil pada pencarian pertama!")
+        gg.toast("❌ Tidak ada hasil pada pencarian pertama.!")
         gg.clearResults()
         return false
     end
@@ -1282,7 +2282,7 @@ function pesquisarCheckpointPreciso_Onibus()
     teleportarOnibusEPlayer(-720.6337890625, -1311.76403808594, 18.96370315552, false)
     gg.sleep(1000)
     
-    gg.toast("✅ Memulai Farm")
+    gg.toast("✅ MEMULAI")
     
     gg.searchNumber(SEGUNDA_BUSCA, gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
     gg.sleep(500)
@@ -1370,7 +2370,7 @@ function teleportarOnibusEPlayer(y, x, z, congelar)
     if onibusOk and playerOk then
         return true
     else
-        gg.toast("❌ TERJADI KESALAHAN SAAT MELAKUKAN TELEPORTASI!")
+        gg.toast("❌ Kesalahan teleportasi!")
         return false
     end
 end
@@ -1416,7 +2416,7 @@ function getCheckpointAtualizado_Onibus()
             z = valoresLidos[3].value
         }
     else
-        gg.toast("⚠️ Terjadi kesalahan saat membaca koordinat!")
+        gg.toast("⚠️ Terjadi kesalahan saat membaca koordinat.!")
         return nil
     end
 end
@@ -1459,7 +2459,7 @@ function farmTesteOnibus_Integrado()
     end
     
     if farmOnibusAtivo then
-        gg.toast("⏸️ AUTO TERSEBUT SUDAH BEROPERASI.!")
+        gg.toast("⏸️ Auto Farm tersebut sudah beroperasi.!")
         return false
     end
     
@@ -1485,7 +2485,7 @@ function farmTesteOnibus_Integrado()
                 repeticoes = repeticoes + 1
                 
                 if repeticoes >= 3 then
-                    gg.toast("⏳ TITIK AKHIR TERDETEKSI! MENUNGGU 5s...")
+                    gg.toast("⏳ Titik akhir terdeteksi! Menunggu 5 detik...")
                     
                     descongelarTudo_Onibus()
                     teleportarOnibusEPlayer(1759.343383789063, -2644.426025390625, 1.5, false)
@@ -1497,8 +2497,7 @@ function farmTesteOnibus_Integrado()
                     end
                     
                     repeticoes = 0
-                    gg.toast("🔄 Melanjutkan farm...")
-                    goto continuar
+                    gg.toast("🔄 AUTO FARM DI LANJUTKAN...")
                 end
             else
                 repeticoes = 0
@@ -1507,26 +2506,24 @@ function farmTesteOnibus_Integrado()
             ultimoCheckpoint = coordsAtuais
             
             if teleportarParaCheckpoint_Onibus() then
-                gg.toast("👑 AUTO BUS AKTIF 👑")
+                gg.toast("👑 AUTO FARM BUS AKTIF 👑")
             else
-                gg.toast("❌ Terjadi kesalahan Di Farm!")
+                gg.toast("❌ Terjadi kesalahan di pertanian!")
                 farmOnibusAtivo = false
                 return false
             end
             descongelarTudo_Onibus()
             gg.sleep(3500)
         else
-            gg.toast("⚠️ Terjadi Kesalahan Saat Mendapatkan Titik Pemeriksaan!")
+            gg.toast("⚠️ Terjadi kesalahan saat mendapatkan titik pemeriksaan.!")
             farmOnibusAtivo = false
             return false
         end
         
-        ::continuar::
-        
         gg.sleep(100)
     end
     
-    gg.toast(string.format("⏹️ Farm Terganggu! Iterasi: %d", iteracao))
+    gg.toast(string.format("⏹️ Pertanian terganggu! Iterasi: %d", iteracao))
     farmOnibusAtivo = false
     return true
 end
@@ -1535,7 +2532,7 @@ function pararFarmOnibus_Integrado()
     if farmOnibusAtivo then
         farmOnibusAtivo = false
         descongelarTudo_Onibus()
-        gg.toast("⏹️ Bus Berhenti Di Halte!")
+        gg.toast("⏹️ Auto Farm Bus berhenti!")
     else
         gg.toast("📴 Tidak ada terminal bus yang beroperasi.")
     end
@@ -1545,7 +2542,7 @@ function limparListaGG_Onibus_Integrado()
     if next(itensNaLista_Onibus) ~= nil then
         gg.removeListItems(itensNaLista_Onibus)
         itensNaLista_Onibus = {}
-        gg.toast("🧹 Daftar GG (bus) sudah bersih!")
+        gg.toast("🧹 Daftar GG (bus) dibersihkan!")
     end
 end
 
@@ -1553,25 +2550,25 @@ function menuOnibusIntegrado()
     local opcoes = {}
     
     if not playerObtido_Onibus then
-        table.insert(opcoes, "🔍 1. DAPATKAN PEMAIN POS")
+        table.insert(opcoes, "🔍 1. DAPATKAN POSISI PEMAIN")
     end
     
     if not onibusObtido then
-        table.insert(opcoes, "🚌 2. DAPATKAN POS BUS")
+        table.insert(opcoes, "🚌 2. DAPATKAN POSISI BUS")
     end
     
     if playerObtido_Onibus and onibusObtido and not checkpointObtido then
-        table.insert(opcoes, "🎯 3. Raih Titik Pemeriksaan Dan Mulai Otomatis.")
+        table.insert(opcoes, "🎯 3. Raih titik pemeriksaan dan mulailah.")
     end
     
     if farmOnibusAtivo then
-        table.insert(opcoes, "⏹️ 4. KEMBALI FARM")
+        table.insert(opcoes, "⏹️ 4. BERHENTI")
     end
     
-    table.insert(opcoes, "🏢 5. TELEPORTASI KE NPC")
+    table.insert(opcoes, "🏢 5. TELEPORTASI KE TEMPAT KERJA")
     table.insert(opcoes, "🔙 6. KEMBALI KE MENU UTAMA")
     
-    local opcao = gg.choice(opcoes, nil, "🚌 MENU AUTO BUS 🚌")
+    local opcao = gg.choice(opcoes, nil, "🚌 MENU FARM BUS 🚌")
     
     if opcao == nil then return end
     
@@ -1619,24 +2616,26 @@ function menuOnibusIntegrado()
         menu_principal()
     end
 end
-
-
 -- ==========================================
 -- 🆕 MENU FARM ATUALIZADO
 -- ==========================================
 function menuFarm()
     local escolha = gg.choice({
-        "🌾 AUTO TANI",
+        "🧑🏻‍🌾 AUTO TANI",
+        "🧑🏻‍🌾 AUTO TANI ( INSTANT )",
         "⛏️ AUTO TAMBANG",
         "⛏️ AUTO TAMBANG ( INSTANT )",
+        "⛏️ AUTO TAMBANG ( ⚡INSTANT⚡ )",
         "🚌 AUTO BUS",
         "◀️ KEMBALI"
     }, nil, "🚀 AUTO PILOT KERJA")
     if escolha == 1 then farmFazendaBot()
-    elseif escolha == 2 then farmMinaBot()
-    elseif escolha == 3 then farmMinaTPCorrigido()
-    elseif escolha == 4 then menuOnibusIntegrado()
-    elseif escolha == 5 then menu_principal()
+    elseif escolha == 2 then menuFarmFazendaBlabeidi()
+    elseif escolha == 3 then farmMinaBot()
+    elseif escolha == 4 then farmMinaTPCorrigido()
+    elseif escolha == 5 then menuFarmMinaBlabeidi()
+    elseif escolha == 6 then menuOnibusIntegrado()
+    elseif escolha == 7 then menu_principal()
     end
 end
 
@@ -1655,14 +2654,17 @@ end
 
 function menuTeleporte()
     local escolha = gg.choice({
-        "📡 TP INSTAN GPS",
+        "📡 TP GPS MARKER",
+        "🚗 TP GPS KENDARAAN",
         "🌏 TP LOKASI TETAP.",
         "◀️ KEMBALI"
     }, nil, "⚡ MENU TELEPORT INSTANT")
 
     if escolha == 1 then
         TP_GPS()
-    elseif escolha == 2 then
+    if escolha == 2 then
+        GPS_AUTOMATICO_VEICULO()
+    elseif escolha == 3 then
         local locais = {
             {"🏝️ STASIUN", -1987.606, 8.27, 445.46},
             {"🔫 TOKO SENJATA", -971.377, 11.54, -1515.79},
@@ -1685,7 +2687,7 @@ function menuTeleporte()
             local destino = locais[subEscolha]
             TP(destino[2], destino[3], destino[4])
         end
-        elseif escolha == 3 then menu_principal()
+        elseif escolha == 4 then menu_principal()
     end
 end
 -- ==========================================
@@ -1764,29 +2766,23 @@ local Criadores = {
 }
 local linha_divisoria = "━━━━━━━━━━━━━━━━━━━━━"
 
-function wallhack()
-wallhack1 = gg.choice({"Mengaktifkan", "Menonaktifkan", "◀️Kembali"}, nil, versao)
-
-   if wallhack1 == 1 then wallon() end
-   if wallhack1 == 2 then walloff() end
-   if wallhack1 == 3 then loop(menupremium,"prin") end
+function WallHackMenu()
+    local menu = gg.choice({"AKTIF", "NONAKTIFKAN", "KEMBALI"}, nil, "🧱 WALL HACK")
+    if menu == 1 then
+        gg.clearResults()
+        gg.searchNumber("60", gg.TYPE_FLOAT)
+        gg.getResults(9999)
+        gg.editAll("60.7", gg.TYPE_FLOAT)
+        gg.toast("✅ Wall Hack AKTIF")
+    elseif menu == 2 then
+        gg.clearResults()
+        gg.searchNumber("60.7", gg.TYPE_FLOAT)
+        gg.getResults(9999)
+        gg.editAll("60", gg.TYPE_FLOAT)
+        gg.toast("✅ Wall Hack NONAKTIF")
+    end
 end
 
-function wallon()
-   gg.searchNumber("60", gg.TYPE_FLOAT)
-   gg.getResults(99999)
-   gg.editAll("60.7", gg.TYPE_FLOAT)
-   gg.toast("Wall hack ON")
-   gg.clearResults()
-end
-
-function walloff()
-   gg.searchNumber("60.7", gg.TYPE_FLOAT)
-   gg.getResults(99999)
-   gg.editAll("60", gg.TYPE_FLOAT)
-   gg.toast("Wall hack OFF")
-   gg.clearResults()
-end
 function ativarspeed(velocidade)
   if speedWalkCache.addresses then
     local edits = {}
