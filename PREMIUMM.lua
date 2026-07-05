@@ -62,7 +62,7 @@ local senhasValidas = {
         usuario = "PREMIUM", 
         dispositivos = "1", 
         criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 4, hora = 13, min = 00
+        ano = 2026, mes = 7, dia = 12, hora = 13, min = 00
     },
        -- ====================================================
  ["FORJI"] = {
