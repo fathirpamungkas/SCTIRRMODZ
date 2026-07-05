@@ -183,6 +183,32 @@ local DIST_MIN = 1.5
 -- ==========================================
 -- VARIÁVEIS DO FARM ÔNIBUS
 -- ==========================================
+local farmFazendaTerraAtivo = false
+local rotaFazendaTerra = {}
+local checkpointAtualTerra = 1
+local ciclosTerra = 0
+local coletasTerra = 0
+
+local pontoSuperficie = {x = 193.703, y = 10.735, z = -2475.041}
+
+local farmMinaBlabeidiAtivo = false
+local rotaMinaBlabeidi = {}
+local checkpointAtualMina = 1
+local ciclosMina = 0
+local coletasMina = 0
+
+local rotaPadraoMinaBlabeidi = {
+    {nome = "🚪 POSISI 1", x = 19.4, y = 1012.2, z = 859.3},
+    {nome = "🔄 KORIDOR 1", x = 21.1, y = 1012.1, z = 833.7},
+    {nome = "⛏️ POSISI 3", x = 23.2, y = 1009.6, z = 807.9},
+    {nome = "💎 POSISI 4", x = 25.5, y = 1008.3, z = 785.2},
+    {nome = "💎 JUAL", x = 27.8, y = 1007.8, z = 765.4},
+    {nome = "🔄 KEMBALI", x = 23.0, y = 1010.0, z = 810.0},
+    {nome = "🚪 KELUAR", x = 19.4, y = 1012.2, z = 859.3}
+}
+
+local pontoSeguroMina = {x = 19.4, y = 1050.0, z = 859.3}
+
 local enderecosY_Onibus = {}
 local enderecosCheckpoint = {}
 local enderecosCompletos_Onibus = {}
