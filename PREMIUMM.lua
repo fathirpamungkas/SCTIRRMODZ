@@ -2662,7 +2662,7 @@ function menuTeleporte()
 
     if escolha == 1 then
         TP_GPS()
-    if escolha == 2 then
+    elseif escolha == 2 then
         GPS_AUTOMATICO_VEICULO()
     elseif escolha == 3 then
         local locais = {
