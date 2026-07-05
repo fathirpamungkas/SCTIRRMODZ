@@ -808,6 +808,40 @@ function GPS_AUTOMATICO_VEICULO()
         gg.sleep(300)
     end
 end
+
+local ultimoMovimento = 0
+
+function antiKick()
+    local tempoAtual = os.time()
+    
+    if tempoAtual - ultimoMovimento >= 3 then
+        ultimoMovimento = tempoAtual
+        
+        if addrX and addrY and addrZ then
+            local pos = gg.getValues({
+                {address = addrX, flags = gg.TYPE_FLOAT},
+                {address = addrZ, flags = gg.TYPE_FLOAT}
+            })
+            
+            if pos[1] and pos[2] then
+                local deslocamento = 0.001
+                local direcao = math.random(1, 4)
+                
+                if direcao == 1 then
+                    gg.setValues({{address = addrX, value = pos[1].value + deslocamento, flags = gg.TYPE_FLOAT}})
+                elseif direcao == 2 then
+                    gg.setValues({{address = addrX, value = pos[1].value - deslocamento, flags = gg.TYPE_FLOAT}})
+                elseif direcao == 3 then
+                    gg.setValues({{address = addrZ, value = pos[2].value + deslocamento, flags = gg.TYPE_FLOAT}})
+                else
+                    gg.setValues({{address = addrZ, value = pos[2].value - deslocamento, flags = gg.TYPE_FLOAT}})
+                end
+            end
+        end
+    end
+end
+
+
 -- ==========================================
 -- FUNÇÕES FARM FAZENDA E MINA
 -- ==========================================
@@ -2614,6 +2648,63 @@ function menuOnibusIntegrado()
     if opcao == idx then
         limparListaGG_Onibus_Integrado()
         menu_principal()
+    end
+end
+
+local checkpointsMina = {
+    {nome = "ENTRADA",   x = 19.4, y = 1012.2, z = 859.3},
+    {nome = "CORREDOR",  x = 21.1, y = 1012.1, z = 833.7},
+    {nome = "FUNDO",     x = 23.2, y = 1009.6, z = 807.9},
+    {nome = "VOLTA",     x = 21.0, y = 1012.0, z = 833.5},
+    {nome = "REINICIO",  x = 19.2, y = 1012.3, z = 859.5}
+}
+
+function farmMinaBot()
+    if not addrZ and not buscarBasePlayer() then return end
+    local farmMinaAtivo = true
+    local cp = 1
+    gg.toast("⛏️ Farm Mina Iniciado!")
+    while farmMinaAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            local escolha = gg.alert("⛏️ TAMBANG AKTIF", "🛑 BERHENTI", "⏭ SKIP")
+            if escolha == 1 then 
+                farmMinaAtivo = false
+                break 
+            elseif escolha == 2 then
+                cp = cp + 1
+                if cp > #checkpointsMina then cp = 1 end
+            end
+        end
+        local posY = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})[1].value
+        if posY < 900 then
+            TP(checkpointsMina[1].x, checkpointsMina[1].y, checkpointsMina[1].z)
+            cp = 1
+        end
+        local alvo = checkpointsMina[cp]
+        local pos = gg.getValues({
+            {address = addrX, flags = gg.TYPE_FLOAT}, 
+            {address = addrY, flags = gg.TYPE_FLOAT}, 
+            {address = addrZ, flags = gg.TYPE_FLOAT}
+        })
+        local dx, dy, dz = alvo.x - pos[1].value, alvo.y - pos[2].value, alvo.z - pos[3].value
+        local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+        if dist < DIST_MIN then
+            gg.toast("⛏️ Mengumpulkan di: " .. alvo.nome)
+            gg.sleep(6000)
+            cp = cp + 1
+            if cp > #checkpointsMina then cp = 1 end
+        else
+            local nx = pos[1].value + (dx / dist) * SPEED_MINA
+            local ny = pos[2].value + (dy / dist) * SPEED_MINA
+            local nz = pos[3].value + (dz / dist) * SPEED_MINA
+            gg.setValues({
+                {address = addrX, value = nx, flags = gg.TYPE_FLOAT}, 
+                {address = addrY, value = ny, flags = gg.TYPE_FLOAT}, 
+                {address = addrZ, value = nz, flags = gg.TYPE_FLOAT}
+            })
+        end
+        gg.sleep(70)
     end
 end
 -- ==========================================
