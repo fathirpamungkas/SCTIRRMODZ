@@ -30,11 +30,11 @@ local senhasValidas = {
         ano = 2026, mes = 7, dia = 8, hora = 20, min = 00 
     },
   -- =====================================================  
-["VERMONBLACK"] = {
+["AGUNG"] = {
         usuario = "PREMIUM", 
         dispositivos = "1", 
         criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 4, hora = 10, min = 00
+        ano = 2026, mes = 7, dia = 14, hora = 22, min = 00
     },
   -- ====================================================
   ["FUNIX"] = {
@@ -51,11 +51,11 @@ local senhasValidas = {
         ano = 2026, mes = 7, dia = 12, hora = 01, min = 20
     },
    -- ====================================================
- ["DJAROTEXP"] = {
+ ["SONETA"] = {
         usuario = "PREMIUM", 
-        dispositivos = "0", 
+        dispositivos = "1", 
         criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 6, hora = 10, min = 00
+        ano = 2030, mes = 7, dia = 6, hora = 10, min = 00
     },
        -- ====================================================
  ["BANDIT"] = {
