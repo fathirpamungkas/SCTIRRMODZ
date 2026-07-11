@@ -8,97 +8,15 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    -- 🟢 ÚNICA KEY ATIVA (Expira no futuro: 18/07/2026)
-    ["TIRR18"] = {
-        usuario = "PREMIUM",
-        dispositivos = "1",
-        criado = "30/06/2026 H19:00",
-        ano = 2028, mes = 7, dia = 20, hora = 10, min = 00
-    }, 
-    --=====================================================
-    ["ANDRE"] = {
-        usuario = "PREMIUM",
-        dispositivos = "1",
-        criado = "01/01/2026 H08:00",
-        ano = 2026, mes = 7, dia = 9, hora = 21, min = 00 
-    },
-   -- =====================================================
- ["KINGTIR"] = {
-        usuario = "PREMIUM",
-        dispositivos = "2",
-        criado = "01/01/2026 H08:00",
-        ano = 2026, mes = 7, dia = 8, hora = 20, min = 00 
-    },
-  -- =====================================================  
-["AGUNG"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 14, hora = 22, min = 00
-    },
-  -- ====================================================
-  ["FUNIX"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 12, hora = 10, min = 00
-    },
-  -- ====================================================
-  ["LOPEZZZ"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "0", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 12, hora = 01, min = 20
-    },
-   -- ====================================================
- ["SONETA"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2030, mes = 7, dia = 6, hora = 10, min = 00
-    },
-       -- ====================================================
- ["BANDIT"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 12, hora = 13, min = 00
-    },
-       -- ====================================================
- ["MARSEL"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "0", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2029, mes = 7, dia = 6, hora = 23, min = 00
-    },
-  -- =====================================================
-["ICHTIAR"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 4, hora = 10, min = 00
-    },
- -- =======================================================  
- ["PENPEN"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 6, dia = 30, hora = 00, min = 00
-    },
-    -- =======================================================  
- ["FAJRI"] = {
-        usuario = "PREMIUM", 
-        dispositivos = "1", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2026, mes = 7, dia = 6, hora = 20, min = 00
-    },
- -- =======================================================
-  ["ROXIO"] = {
-        usuario = "KELUARGA", 
-        dispositivos = "99", 
-        criado = "01/01/2026 H00:00", 
-        ano = 2027, mes = 1, dia = 1, hora = 00, min = 00
-    }
+    ["TIRR18"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
+    ["SKUTS"] = {usuario = "PREMIUM", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 2026, mes = 7, dia = 12, hora = 18, min = 50},
+    ["NICOL"] = {usuario = "PREMIUM", dispositivos = "1", criado = "11/07/2026 H18:30", ano = 2026, mes = 7, dia = 18, hora = 18, min = 50},
+    ["SUROSO"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H08:00", ano = 2026, mes = 7, dia = 11, hora = 15, min = 30},
+    ["AGUNG"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 14, hora = 22, min = 00},
+    ["FUNIX"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 10, min = 00},
+    ["LOPEZZZ"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 01, min = 20},
+    ["BANDIT"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 13, min = 00},
+    ["ROXIO"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
 }
 -- ======================================================
 -- 👆👆👆👆 PAINEL SENHAS E USUÁRIO 👆👆👆👆
@@ -3146,14 +3064,20 @@ end
 
 function TP(x, y, z)
     if not addrX or not addrY or not addrZ then
-        if not buscarBasePlayer() then return end
+        if not buscarBasePlayer() then 
+            gg.toast("❌ Base player tidak ditemukan!")
+            return 
+        end
     end
+    antiKick()
     gg.setValues({
         {address = addrX, value = x, flags = gg.TYPE_FLOAT},
         {address = addrY, value = y, flags = gg.TYPE_FLOAT},
         {address = addrZ, value = z, flags = gg.TYPE_FLOAT}
     })
-    gg.toast("✅ TELEPORTASI!")
+    gg.sleep(80)
+    antiKick()
+    gg.toast("✅ TELEPORT BERHASIL!")
 end
 
 function obterDeslocamento()
@@ -3461,27 +3385,13 @@ end
 -- ==========================================
 
 function teleportToPoint(point)
-    if not addrZ and not buscarBasePlayer() then
-        gg.toast("❌ Base player tidak ditemukan!")
-        return false
-    end
-
-    gg.setValues({
-        {address = addrX, value = point.x, flags = gg.TYPE_FLOAT},
-        {address = addrY, value = point.y, flags = gg.TYPE_FLOAT},
-        {address = addrZ, value = point.z, flags = gg.TYPE_FLOAT}
-    })
-
-    gg.toast("✅ TELEPORT KE: " .. point.name)
-    gg.sleep(100)
-
-    -- Anti void kecil
+    antiKick()
+    TP(point.x, point.y, point.z)
     local yCheck = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
     if yCheck[1].value < 0 or yCheck[1].value > 3000 then
-        gg.toast("⚠️ Anti-void aktif...")
         gg.setValues({{address = addrY, value = point.y + 5, flags = gg.TYPE_FLOAT}})
+        antiKick()
     end
-    return true
 end
 
 function menuTeleportGPS()
