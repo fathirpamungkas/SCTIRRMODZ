@@ -8,7 +8,7 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    ["TESTER"] = {usuario = "PREMIUM", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 11, min = 50}
+    ["ALDO"] = {usuario = "PREMIUM", dispositivos = "99", criado = "12/07/2026 H12:49", ano = 2026, mes = 7, dia = 19, hora = 12, min = 50}
 }
 -- ======================================================
 -- 👆👆👆👆 PAINEL SENHAS E USUÁRIO 👆👆👆👆
