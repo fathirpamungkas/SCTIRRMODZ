@@ -8,7 +8,20 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    ["ALDO"] = {usuario = "PREMIUM", dispositivos = "99", criado = "12/07/2026 H12:49", ano = 2026, mes = 7, dia = 19, hora = 12, min = 50}
+    ["TIRR18"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
+    ["ALDO"] = {usuario = "PREMIUM", dispositivos = "99", criado = "12/07/2026 H12:49", ano = 2026, mes = 7, dia = 19, hora = 12, min = 50},
+    ["SONETA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
+    ["VINCEN"] = {usuario = "PREMIUM", dispositivos = "1", criado = "12/07/2026 H05:00", ano = 2026, mes = 7, dia = 19, hora = 05, min = 50},
+    ["MARSEL"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
+    ["SKUTS"] = {usuario = "PREMIUM", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 2026, mes = 7, dia = 12, hora = 18, min = 50},
+    ["NICOL"] = {usuario = "PREMIUM", dispositivos = "1", criado = "11/07/2026 H18:30", ano = 2026, mes = 7, dia = 18, hora = 18, min = 50},
+    ["SUROSO"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H08:00", ano = 2026, mes = 7, dia = 12, hora = 15, min = 30},
+    ["HIMAWAN"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H08:00", ano = 2026, mes = 7, dia = 12, hora = 15, min = 30},
+    ["AGUNG"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 14, hora = 22, min = 00},
+    ["FUNIX"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 10, min = 00},
+    ["LOPEZZZ"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 01, min = 20},
+    ["BANDIT"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 13, min = 00},
+    ["ROXIO"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
 }
 -- ======================================================
 -- 👆👆👆👆 PAINEL SENHAS E USUÁRIO 👆👆👆👆
@@ -153,6 +166,104 @@ local gps_qword = "7233187898168705024"
 local gps_offZ, gps_offX, gps_offY = 0x14, 0x10, 0xC
 local gpsAtivo = false
 
+local speedWalkCache = { addresses = nil, lastTarget = "3.14159274101" }
+local teleportPoints = {
+
+    -- TELEPORT GPS
+    {name = "🌟 TEMPAT DUEL", x = -670.744, y = 12.086, z = -1543.769},
+    {name = "🩸 CINCIN BERDARAH", x = -694.521, y = 3.839, z = 1964.598},
+    {name = "🚏 STASIUN", x = -1985.014, y = 8.272, z = 449.442},
+    {name = "🌲 KEBUN POHON", x = -1916.150, y = 10.360, z = 9.785},
+    {name = "🕶️ PASAR AKSESORIS", x = -713.189, y = 11.674, z = -1798.412},
+    {name = "🧰 PASAR GELAP", x = -2230.074, y = 40.222, z = -2511.948},
+    {name = "🏫 SEKOLAH MENGEMUDI", x = -2004.901, y = 8.304, z = 507.134},
+    {name = "🪖 ARMY", x = -40.968, y = 12.832, z = 11.233},
+    {name = "🏢 KANTOR ARMY", x = -234.058, y = 13.770, z = -18.085},
+    {name = "👮🏻 KANTOR POLISI FEDERAL", x = -1943.651, y = 8.304, z = 1118.078},
+    {name = "⛪ GEREJA", x = -2097.495, y = 10.431, z = 569.232}
+}
+local umum = {
+    -- TELEPORT UMUM
+    {name = "🏛️ BALAI KOTA", x = -1855.318, y = 10.691, z = 1456.796},
+    {name = "🏡 RUMAH LELANG", x = -2074.614, y = 8.917, z = 1292.522},
+    {name = "🛻 DEALER MOBIL EKONOMI", x = -589.651, y = 10.175, z = -1527.842},
+    {name = "🚗 DEALER MOBIL MENENGAH", x = -1833.414, y = 8.287, z = 1625.111},
+    {name = "🚙 DEALER MOBIL PREMIUM", x = -2228.894, y = 8.704, z = 1223.101},
+    {name = "🚚 DEALER TRUK", x = -1333.213, y = 12.854, z = -290.881},
+    {name = "🛵 SALON MOTOR", x = -1986.773, y = 8.318, z = 931.665},
+    {name = "🔧 BENGKEL SERVIS", x = -2037.158, y = 8.346, z = 1406.589},
+    {name = "🖌️ PUSAT STYLING", x = -1733.242, y = 8.288, z = 1522.716},
+    {name = "🛞 PUSAT TAMBAL BAN", x = -1989.480, y = 8.318, z = 1185.091},
+    {name = "🛒 PASAR MOBIL", x = -283.851, y = 11.922, z = -2220.262},
+    {name = "🏨 HOTEL", x = -444.375, y = 11.799, z = -2316.710}
+}
+
+local fraksi = {
+    -- FRAKSI
+    {name = "🟣 GANTELMAN", x = -1344.205, y = 20.246, z = -1414.999},
+    {name = "🟢 SERIGALA", x = -1082.850, y = 10.511, z = -1761.345},
+    {name = "🏥 RUMAH SAKIT", x = -2130.903, y = 8.253, z = 1094.955},
+    {name = "🏥 DALAM RUMAH SAKIT", x = 912.353, y = 1012.000, z = 36.865},
+    {name = "🎤 MEDIA MASSA", x = -2151.320, y = 8.875, z = 854.150}
+}
+
+local toko = {
+    -- TOKO
+    {name = "🏪 TOKO 24/7 ST", x = -2045.240, y = 8.263, z = 571.230},
+    {name = "🏪 TOKO 24/7 JEMBATAN", x = -1684.710, y = 12.057, z = -770.328},
+    {name = "🏪 TOKO 24/7 RS", x = -2123.570, y = 8.236, z = 1179.322},
+    {name = "⛽ POM BENSIN JEMBATAN", x = -1374.760, y = 20.400, z = -1001.371},
+    {name = "⛽ POM BENSIN HOOD UNGU", x = -1444.333, y = 10.651, z = -1475.790},
+    {name = "🏤 TOKO PAKAIAN", x = -2017.683, y = 8.208, z = 525.924},
+    {name = "🏬 WARUNG MAKAN", x = -1982.765, y = 8.208, z = 499.802},
+    {name = "🔫 TOKO SENJATA ST", x = -1966.173, y = 8.214, z = 490.732},
+    {name = "🔫 TOKO SENJATA UNGU", x = -971.076, y = 11.674, z = -1516.155}
+}
+
+local parkiran = {
+    -- PARKIRAN
+    {name = "🅿️ PARKIRAN UNGU", x = -1365.542, y = 40.883, z = -1296.527},
+    {name = "🅿️ PARKIRAN STASIUN", x = -2026.550, y = 8.272, z = 452.677}
+}
+
+local bank = {
+    {name = "🏦 BANK ARCADIA", x = -1803.679, y = 8.379, z = 1200.355},
+    {name = "🏦 BANK MEIR", x = -589.155, y = 11.998, z = 1754.781}
+}
+
+local scooter = {
+    -- SEWA SCOOTER
+    {name = "🛵 SEWA SCOOTER STASIUN", x = -2018.763, y = 8.284, z = 470.858},
+    {name = "🛵 SEWA SCOOTER RS", x = -2063.716, y = 8.257, z = 1077.299}
+}
+
+local jobkerja = {
+    {name = "🛖 PETERNAKAN", x = 193.703, y = 10.735, z = -2475.041},
+    {name = "⛏️ TAMBANG", x = -1133.110, y = 43.746, z = -179.977},
+    {name = "🍕 PIZZA", x = -2170.384, y = 8.219, z = 1000.431},
+    {name = "🚌 BUS", x = -1381.211, y = 11.508, z = -305.560},
+    {name = "🚛 TRUK SAMPAH", x = -2038.808, y = 15.807, z = -430.695},
+    {name = "🚚 TRUK JARAK JAUH", x = -1447.565, y = 8.361, z = 1880.946}
+}
+
+local ladang = {
+    {name = "🌾 LADANG GANDUM", x = 287.784, y = 15.116, z = -2457.071},
+    {name = "🥑 LADANG ALPUKAT", x = 235.095, y = 15.068, z = -2408.993},
+    {name = "🥔 LADANG KENTANG", x = 237.054, y = 16.507, z = -2366.803}
+}
+
+local penjara = {
+    {name = "🔗 GERBANG SEL", x = -2733.432, y = 31.288, z = 7.942},
+    {name = "🏀 LAPANGAN BASKET SEL", x = -2762.762, y = 31.285, z = -26.951},
+    {name = "🍽️ PEMBAGIAN MAKANAN SEL", x = 1131.338, y = 2159.920, z = 1704.352},
+    {name = "📞 TELEPON SEL", x = 1127.786, y = 2159.920, z = 1730.361}
+}
+
+local kontainer = {
+    -- KONTAINER
+    {name = "🪝 LELANG KONTAINER", x = -1340.025, y = 6.771, z = 2725.360}
+}
+
 
 -- ================= KING ARCHIVE TIR ================= --
 local tempo = os.date("*t")
@@ -233,6 +344,419 @@ function maintenance()
     )
 end
 
+function menuVeiculos()
+   local veiculosMenu = gg.choice({
+       "🚗 Aim Kill (Anda membutuhkan kendaraan.) 🚗",
+       "🚗 Infinite Bodywork (Harus terpasang di dalam kendaraan)) 🚗",
+       "🚗 Mengalami kerusakan kendaraan (Harus berada di dalam kendaraan)) 🚗",
+       "🚗💨 Kendaraan Kecepatan 🚗💨",
+       "《↩️》Kembali"
+   }, nil, "🚗 MENU KENDARAAN 🚗")
+
+   if veiculosMenu == 1 then aimkillcarro() end
+   if veiculosMenu == 2 then latariainf() end
+   if veiculosMenu == 3 then quebrarveiculo() end
+   if veiculosMenu == 4 then SpeedHackGamer() end
+   if veiculosMenu == 5 then menu_principal() end
+end
+
+-- ==========================================
+-- FUNÇÃO LIGA MOTO
+-- ==========================================
+function LigaMotoOn()
+    gg.clearResults()
+    gg.searchNumber("1.0", gg.TYPE_FLOAT)
+    local res = gg.getResults(2000)
+    for i, v in ipairs(res) do
+        gg.setValues({{address = v.address + 0x10, flags = gg.TYPE_FLOAT, value = 999999}})
+    end
+    gg.toast("🏍️ Liga Moto DIAKTIFKAN")
+end
+
+-- ==========================================
+-- FUNÇÃO AIM KILL
+-- ==========================================
+function AimKillMenu()
+    local menu = gg.choice({"AKTIFKAN", "NONAKTIFKAN", "KEMBALI"}, nil, "🎯 AIM KILL")
+    if menu == 1 then
+        gg.clearResults()
+        gg.searchNumber("0.05999999866", gg.TYPE_FLOAT)
+        gg.getResults(500)
+        gg.editAll("0", gg.TYPE_FLOAT)
+        gg.toast("🎯 Aim Kill AKTIF")
+    elseif menu == 2 then
+        gg.clearResults()
+        gg.searchNumber("0", gg.TYPE_FLOAT)
+        gg.getResults(500)
+        gg.editAll("0.05999999866", gg.TYPE_FLOAT)
+        gg.toast("❌ Aim Kill NONAKTIF")
+    end
+end
+
+function MenuPremium2()
+    local statusSpeed = active and "on" or "off"
+    local escolha = gg.choice({
+        "🏃 AUTO RUN",
+        "🎯 AIM KILL",
+        "🏍️ LIGA MOTOR",
+        "📷 ZOOM CAMERA ",
+        "👽 BLINK TP",
+        "📢 TEMBUS TEMBOK",
+        "◀️ KEMBALI"
+    }, nil, "💎 MENU PREMIUM")
+
+    if escolha == 1 then autoRun()
+    elseif escolha == 2 then AimKillMenu()
+    elseif escolha == 3 then LigaMotoOn()
+    elseif escolha == 4 then esticada()
+    elseif escolha == 5 then modoToggleSpamIlimitado()
+    elseif escolha == 6 then WallHackMenu()
+    elseif escolha == 7 then menu_principal()
+    end
+end
+
+-- ==========================================
+-- SISTEMA: SAIR DA PRISÃO
+-- ==========================================
+function sairDaPrisaoBot()
+    if not addrZ and not buscarBasePlayer() then return end
+
+    local x1, y1, z1 = 1140.140, 2159.920, 1752.780   
+    local x2, y2, z2 = -2797.580, 32.894, -16.028     
+    local x3, y3, z3 = -2117.915, 9.087, 355.186      
+
+    local RAIO_DETECCAO = 2.0 
+
+    gg.toast("🏃 MEMULAI PELARIAN: MENUJU TITIK 1...")
+    TP(x1, y1, z1)
+    gg.sleep(500)
+
+    gg.toast("🔍 MEMANTAU PENDEKATAN TITIK 2 (SISTEM SINAR)...")
+    local monitorando = true
+
+    while monitorando do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            if gg.alert("🏃 PELARIAN AKTIF", "🛑 HENTIKAN PELARIAN") == 1 then
+                monitorando = false
+                break
+            end
+        end
+
+        local pos = gg.getValues({
+            {address = addrX, flags = gg.TYPE_FLOAT}, 
+            {address = addrY, flags = gg.TYPE_FLOAT}, 
+            {address = addrZ, flags = gg.TYPE_FLOAT}
+        })
+
+        local dx = x2 - pos[1].value
+        local dy = y2 - pos[2].value
+        local dz = z2 - pos[3].value
+        local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+
+        if dist <= RAIO_DETECCAO then
+            gg.toast("⚡ TELEPORT KILAT! BERTELEPORTASI KE TITIK 3 (KEBEBASAN)!")
+            TP(x3, y3, z3)
+            monitorando = false
+            break
+        end
+
+        gg.sleep(100)
+    end
+end
+
+-- ==========================================
+-- FUNÇÕES DO COMPLEMENTO GAME EXTRA
+-- ==========================================
+function Sprint()
+    gg.clearResults()
+    gg.searchNumber("281474993487972", gg.TYPE_QWORD)
+    local r = gg.getResults(30)
+    if #r == 0 then gg.alert("❌ NILAI TIDAK DITEMUKAN.") else
+        local t = {}
+        for i, v in ipairs(r) do t[i] = { address = v.address - 0x160, flags = gg.TYPE_FLOAT, value = 450, freeze = true } end
+        gg.setValues(t)
+        gg.addListItems(t)
+        gg.toast("✅ AUTO RUN AKFIF")
+    end
+end
+
+function SpeedHackAbaGame()
+    gg.clearResults()
+    if not active then
+        local input = gg.prompt({"Kecepatan (Slider):"}, {selectedSpeed}, {"number"})
+        if input then selectedSpeed = tonumber(input[1]) end
+        gg.searchNumber("9187343240761165228", gg.TYPE_QWORD)
+        local results = gg.getResults(1)
+        if #results == 0 then gg.alert("❌ Nilai dasar tidak ditemukan.."); return end
+        savedAddr = results[1].address
+        savedValue = gg.getValues({{address = savedAddr, flags = gg.TYPE_QWORD}})[1].value
+        gg.setValues({{address = savedAddr, flags = gg.TYPE_FLOAT, value = selectedSpeed}})
+        active = true
+    else
+        if savedAddr then gg.setValues({{address = savedAddr, flags = gg.TYPE_QWORD, value = savedValue}}) end
+        active = false
+    end
+end
+
+-- ==========================================
+-- 🆕 FUNÇÃO ACELERA GAMER (SPEED HACK MODERNO)
+-- ==========================================
+local activeSpeed = false
+local savedAddr = nil
+local savedValue = nil
+local speedGamerValue = 1.0
+
+function SpeedHackGamer(customSpeed)
+    gg.clearResults()
+    
+    if not activeSpeed then
+        -- Jika customSpeed tidak dikirim, pakai prompt
+        if not customSpeed then
+            local input = gg.prompt({"Masukkan Kecepatan (1-20):"}, {speedGamerValue}, {"number"})
+            if not input then return end
+            customSpeed = tonumber(input[1])
+        end
+        
+        if customSpeed < 1 then customSpeed = 1 end
+        if customSpeed > 20 then customSpeed = 20 end
+        
+        gg.searchNumber("9187343240761165228", gg.TYPE_QWORD)
+        local results = gg.getResults(1)
+        
+        if #results == 0 then 
+            gg.alert("❌ Nilai dasar tidak ditemukan!")
+            return 
+        end
+        
+        savedAddr = results[1].address
+        savedValue = gg.getValues({{address = savedAddr, flags = gg.TYPE_QWORD}})[1].value
+        
+        gg.setValues({{address = savedAddr, flags = gg.TYPE_FLOAT, value = customSpeed}})
+        
+        activeSpeed = true
+        speedGamerValue = customSpeed
+        gg.toast("🕹️ Speed Diaktifkan → " .. customSpeed .. "x", true)
+        
+    else
+        -- Matikan speed
+        if savedAddr then 
+            gg.setValues({{address = savedAddr, flags = gg.TYPE_QWORD, value = savedValue}})
+        end
+        activeSpeed = false
+        gg.toast("🛑 Speed Kendaraan Dinonaktifkan", true)
+    end
+end
+
+function Menu_vehicle()
+    local status = activeSpeed and ("🟢 AKTIF (" .. speedGamerValue .. "x)") or "🔴 NORMAL"
+    
+    local menu = gg.choice({
+        "🏎️ Speed Kendaraan ×1.6 (Aman)",
+        "🏎️ Speed Kendaraan ×2.1 (Aman)",
+        "🏎️ Speed Kendaraan ×2.5 (Rawan)",
+        "🏎️ Speed Kendaraan ×4.0 (Rawan)",
+        "🏎️ Speed Kendaraan ×5.0 (Full Speed)",
+        "⚙️ Custom Speed (Input Sendiri)",
+        "🛑 Matikan Speed Kendaraan",
+        "🔙 Kembali ke Menu Utama"
+    }, nil, "🏎️ MENU SPEED KENDARAAN\nTIRR MODZ\nStatus: " .. status)
+    
+    if not menu then return end
+    
+    if menu == 1 then
+        SpeedHackGamer(1.6)
+    elseif menu == 2 then
+        SpeedHackGamer(2.1)
+    elseif menu == 3 then
+        SpeedHackGamer(2.5)
+    elseif menu == 4 then
+        SpeedHackGamer(4.0)
+    elseif menu == 5 then
+        SpeedHackGamer(5.0)
+    elseif menu == 6 then
+        SpeedHackGamer() -- custom
+    elseif menu == 7 then
+        SpeedHackGamer() -- toggle off
+    elseif menu == 8 then
+        menu_principal()
+        return
+    end
+end
+
+-- ==========================================
+-- FUNÇÃO TELEPORTE GPS
+-- ==========================================
+function TP_GPS()
+    if not addrX and not buscarBasePlayer() then 
+        gg.toast("❌ Base player tidak ditemukan!")
+        return 
+    end
+    
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber("7233187898168705024", gg.TYPE_QWORD)
+    local r = gg.getResults(100)
+
+    if #r == 0 then
+        gg.toast("❌ Tandai tujuan di peta terlebih dahulu!")
+        return
+    end
+
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        local test = gg.getValues({{address = v.address - 0x14, flags = gg.TYPE_FLOAT}})[1].value
+        if test == 0 then
+            -- nilai 0, skip
+        else
+            gps_address = v.address
+            break 
+        end
+    end
+
+    if not gps_address then 
+        gg.toast("❌ GPS tidak ditemukan atau tidak valid") 
+        return
+    end
+
+    local gpsAtivo = true
+    gg.toast("⚡ Teleportasi GPS Instan")
+
+    while gpsAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            if gg.alert("📍 TP GPS AKTIF", "🛑 STOP") == 1 then 
+                gpsAtivo = false
+                break 
+            end
+        end
+
+        local atual = gg.getValues({
+            {address = gps_address - 0x14, flags = gg.TYPE_FLOAT}, 
+            {address = gps_address - 0x10, flags = gg.TYPE_FLOAT}, 
+            {address = gps_address - 0x0C, flags = gg.TYPE_FLOAT}  
+        })
+
+        -- Pengecekan tanpa \~=
+        if atual[1].value == 0 or atual[2].value == 0 then
+            -- skip jika ada yang 0
+        else
+            gg.setValues({
+                {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
+            })
+        end
+        gg.sleep(300)
+    end
+end
+
+function GPS_AUTOMATICO_VEICULO()
+    if not addrZ and not buscarBasePlayer() then return end
+    
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber(gps_qword, gg.TYPE_QWORD)
+    local r = gg.getResults(50)
+    if #r == 0 then
+        gg.alert("❌ TANDAI TUJUAN DI PETA TERLEBIH DAHULU!")
+        return
+    end
+    
+    local gps_address = nil
+    for i, v in ipairs(r) do
+        local test = gg.getValues({{address = v.address - gps_offZ, flags = gg.TYPE_FLOAT}})[1].value
+        if test ~= 0 then
+            gps_address = v.address
+            break
+        end
+    end
+    
+    if not gps_address then
+        gg.alert("❌ GPS TIDAK DITEMUKAN")
+        return
+    end
+    
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_BSS)
+    gg.searchNumber(gps_qword, gg.TYPE_QWORD)
+    local resVeiculo = gg.getResults(100)
+    if #resVeiculo == 0 then
+        gg.alert("❌ KENDARAAN TIDAK DITEMUKAN! SILAKAN NAIK KE KENDARAAN TERLEBIH DAHULU..")
+        return
+    end
+    
+    local veiculoAddress = nil
+    local playerPos = gg.getValues({
+        {address = addrX, flags = gg.TYPE_FLOAT},
+        {address = addrY, flags = gg.TYPE_FLOAT},
+        {address = addrZ, flags = gg.TYPE_FLOAT}
+    })
+    
+    for i, v in ipairs(resVeiculo) do
+        local testPos = gg.getValues({
+            {address = v.address + 0x20, flags = gg.TYPE_FLOAT},
+            {address = v.address + 0x24, flags = gg.TYPE_FLOAT},
+            {address = v.address + 0x28, flags = gg.TYPE_FLOAT}
+        })
+        
+        if testPos[1].value ~= 0 or testPos[2].value ~= 0 or testPos[3].value ~= 0 then
+            local dx = testPos[1].value - playerPos[1].value
+            local dy = testPos[2].value - playerPos[2].value
+            local dz = testPos[3].value - playerPos[3].value
+            local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+            
+            if dist < 50 then
+                veiculoAddress = v.address
+                break
+            end
+        end
+    end
+    
+    if not veiculoAddress then
+        gg.alert("❌ KENDARAAN TIDAK DITEMUKAN! SILAKAN MASUKKAN KENDARAAN TERLEBIH DAHULU..")
+        return
+    end
+    
+    local veiculoX = veiculoAddress + 0x20
+    local veiculoY = veiculoAddress + 0x24
+    local veiculoZ = veiculoAddress + 0x28
+    
+    gpsAtivo = true
+    gg.toast("🚗 MENUJU LOKASI PEMERIKSAAN DENGAN KENDARAAN...")
+    
+    while gpsAtivo do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            local p = gg.alert("🚗 GPS KENDARAAN AKTIF", "🛑 BERHENTI", "▶️ LANJUTKAN")
+            if p == 1 then gpsAtivo = false break end
+        end
+        
+        antiKick()
+        
+        local atual = gg.getValues({
+            {address = gps_address - gps_offZ, flags = gg.TYPE_FLOAT},
+            {address = gps_address - gps_offX, flags = gg.TYPE_FLOAT},
+            {address = gps_address - gps_offY, flags = gg.TYPE_FLOAT}
+        })
+        
+        if atual[1].value ~= 0 then
+            gg.setValues({
+                {address = veiculoX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                {address = veiculoY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                {address = veiculoZ, value = atual[1].value, flags = gg.TYPE_FLOAT}
+            })
+            
+            gg.setValues({
+                {address = addrX, value = atual[2].value, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = atual[3].value, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = atual[1].value + 1.5, flags = gg.TYPE_FLOAT}
+            })
+        end
+        
+        gg.sleep(300)
+    end
+end
 
 local ultimoMovimento = 0
 
@@ -2142,6 +2666,7 @@ function menuFarm()
         "⛏️ AUTO TAMBANG",
         "⛏️ AUTO TAMBANG ( INSTANT )",
         "⛏️ AUTO TAMBANG ( ⚡INSTANT⚡ )",
+        "🚌 AUTO BUS",
         "◀️ KEMBALI"
     }, nil, "🚀 AUTO PILOT KERJA")
     if escolha == 1 then farmFazendaBot()
@@ -2149,10 +2674,62 @@ function menuFarm()
     elseif escolha == 3 then farmMinaBot()
     elseif escolha == 4 then farmMinaTPCorrigido()
     elseif escolha == 5 then menuFarmMinaBlabeidi()
-    elseif escolha == 6 then menu_principal()
+    elseif escolha == 6 then menuOnibusIntegrado()
+    elseif escolha == 7 then menu_principal()
     end
 end
 
+function autoRun()
+    local escolha = gg.choice({
+        "🏃 AKTIF",
+        "🏃 KABUR DARI PENJARA",
+        "◀️ KEMBALI"
+    }, nil, "⚡ MODE AUTO RUN")
+    if escolha == 1 then Sprint()
+    elseif escolha == 2 then sairDaPrisaoBot()
+    elseif escolha == 3 then MenuPremium2()
+    elseif escolha == 4 then menu_principal()
+    end
+end
+
+function menuTeleporte()
+    local escolha = gg.choice({
+        "📡 TP GPS MARKER",
+        "🚗 TP GPS KENDARAAN",
+        "🌏 TP LOKASI TETAP.",
+        "◀️ KEMBALI"
+    }, nil, "⚡ MENU TELEPORT INSTANT")
+
+    if escolha == 1 then
+        TP_GPS()
+    elseif escolha == 2 then
+        GPS_AUTOMATICO_VEICULO()
+    elseif escolha == 3 then
+        local locais = {
+            {"🏝️ STASIUN", -1987.606, 8.27, 445.46},
+            {"🔫 TOKO SENJATA", -971.377, 11.54, -1515.79},
+            {"🏢 BALAI KOTA", -1858.926, 10.69, 1457.16},
+            {"⛽ POM", -1374.5211, 20.39, -1001.28},
+            {"🍔 WARUNG MAKAN", -1982.1541, 8.20, 499.58},
+            {"🚗 SEKOLAH MENGEMUDI", -2002.5773, 8.20, 511.02},
+            {"👕 TOKO PAKAIAN", -2018.4404, 8.20, 525.75},
+            {"🕶️ PASAR GELAP", -2230.20, 40.22, -2511.92},
+            {"⛏️ TAMBANG", -1135.10, 43.76, -179.49},
+            {"🌾 PERTANIAN", 190.13, 10.51, -2477.59},
+        }
+        
+        local listaLocais = {}
+        for i, loc in ipairs(locais) do table.insert(listaLocais, loc[1]) end
+        table.insert(listaLocais, "◀️ KEMBALI")
+
+        local subEscolha = gg.choice(listaLocais, nil, "🗺️ LOKASI PETA")
+        if subEscolha and subEscolha ~= #listaLocais then
+            local destino = locais[subEscolha]
+            TP(destino[2], destino[3], destino[4])
+        end
+        elseif escolha == 4 then menu_principal()
+    end
+end
 -- ==========================================
 -- FUNÇÕES BASE (OBRIGATÓRIAS)
 -- ==========================================
@@ -2229,6 +2806,234 @@ local Criadores = {
 }
 local linha_divisoria = "━━━━━━━━━━━━━━━━━━━━━"
 
+function WallHackMenu()
+    local menu = gg.choice({"AKTIF", "NONAKTIFKAN", "KEMBALI"}, nil, "🧱 WALL HACK")
+    if menu == 1 then
+        gg.clearResults()
+        gg.searchNumber("60", gg.TYPE_FLOAT)
+        gg.getResults(9999)
+        gg.editAll("60.7", gg.TYPE_FLOAT)
+        gg.toast("✅ Wall Hack AKTIF")
+    elseif menu == 2 then
+        gg.clearResults()
+        gg.searchNumber("60.7", gg.TYPE_FLOAT)
+        gg.getResults(9999)
+        gg.editAll("60", gg.TYPE_FLOAT)
+        gg.toast("✅ Wall Hack NONAKTIF")
+    end
+end
+
+function ativarspeed(velocidade)
+  if speedWalkCache.addresses then
+    local edits = {}
+    for i, addr in ipairs(speedWalkCache.addresses) do edits[i] = {address = addr, flags = gg.TYPE_FLOAT, value = velocidade} end
+    gg.setValues(edits)
+    gg.toast("🏃 Kecepatan Lari: " .. velocidade .. "x (Instantâneo)")
+    return
+  end
+  gg.toast("🔍 Mencari Kecepatan... (Primeira vez)")
+  gg.clearResults()
+  gg.searchNumber(speedWalkCache.lastTarget, gg.TYPE_FLOAT)
+  local results = gg.getResults(5000)
+  speedWalkCache.addresses = {}
+  local edits = {}
+  for i, res in ipairs(results) do
+    speedWalkCache.addresses[i] = res.address - 36
+    edits[i] = {address = speedWalkCache.addresses[i], flags = gg.TYPE_FLOAT, value = velocidade}
+  end
+  gg.setValues(edits)
+  gg.toast("🏃 Kecepatan Lari Diaktifkan: " .. velocidade .. "x")
+  gg.clearResults()
+end
+
+function ativarSuperPulo(multi)
+    gg.clearResults()
+    gg.searchNumber("4.15768349e21", gg.TYPE_FLOAT)
+    local res = gg.getResults(3000)
+    for i, v in ipairs(res) do
+        gg.setValues({{address = v.address - 36, flags = gg.TYPE_FLOAT, value = multi}})
+    end
+    gg.toast("🦘 LOMPATAN DIMODIFIKASI MENJADI: " .. multi .. "x")
+end
+
+-- KECEPATAN MENU (LARI DENGAN MOBIL)
+function menuSpeed()
+  local sMenu = gg.choice({
+    "🏃 KECEPATAN LARI", 
+    "🧎🏻 KECEPATAN JONGKOK",
+    "🦅 LOMPATAN SUPER",
+    "◀️ KEMBALI"
+  }, nil, "⚡ MENU SUPER ⚡")
+  
+  if sMenu == 1 then menuSpeedLari()
+  elseif sMenu == 2 then menuSpeedJongkok()
+  elseif sMenu == 3 then menuSuperLompatan()
+  elseif sMenu == 4 then menu_principal() end
+end
+
+function menuSpeedLari()
+  local fMenu = gg.choice({
+    "🏃 KECEPATAN LARI 2X", 
+    "🏃 KECEPATAN LARI 4X", 
+    "🏃 KECEPATAN LARI 8X", 
+    "🚶 LARI NORMAL (1X)", 
+    "◀️ KEMBALI"
+  }, nil, "⚡ MENU SUPER ⚡")
+  
+  if fMenu == 1 then ativarspeed(2)
+  elseif fMenu == 2 then ativarspeed(4)
+  elseif fMenu == 3 then ativarspeed(8)
+  elseif fMenu == 4 then ativarspeed(1)
+  elseif fMenu == 5 then menuSpeed() end
+end
+
+function menuSpeedJongkok()
+  local jMenu = gg.choice({
+    "🧎🏻 KECEPATAN JONGKOK 2x ",
+    "🧎🏻 KECEPATAN JONGKOK 4x ",
+    "🧎🏻 KECEPATAN JONGKOK 6x ",
+    "🧎🏻 KECEPATAN DINONAKTIFKAN ",
+    "◀️ KEMBALI"
+  }, nil, "⚡ MENU SUPER ⚡")
+  
+  if jMenu == 1 then ativarspeedagachado(2)
+  elseif jMenu == 2 then ativarspeedagachado(4)
+  elseif jMenu == 3 then ativarspeedagachado(8)
+  elseif jMenu == 4 then ativarspeedagachado(1)
+  elseif jMenu == 5 then menuSpeed() end
+end
+
+function menuSuperLompatan()
+  local lMenu = gg.choice({
+    "🦅 LOMPATAN 2X", 
+    "🦅 LOMPATAN 4X", 
+    "🦅 LOMPATAN 8X", 
+    "❌ NONAKTIFKAN",
+    "◀️ KEMBALI"
+  }, nil, "⚡ MENU SUPER ⚡")
+  
+  if lMenu == 1 then ativarSuperPulo(2)
+  elseif lMenu == 2 then ativarSuperPulo(4)
+  elseif lMenu == 3 then ativarSuperPulo(8)
+  elseif lMenu == 4 then ativarSuperPulo(1)
+  elseif lMenu == 5 then menuSpeed() end
+end
+
+function ativarspeedagachado(velocidadespeed)
+   -- Validação do input
+   if type(velocidadespeed) ~= "number" or velocidadespeed <= 0 then
+       gg.toast("⚠️ Kecepatan Tidak Valid! Gunakan Angka Positif.")
+       return false
+   end
+
+   -- Se já existe cache, apenas atualiza
+   if speedAgachadoCache.addresses then
+       local edits = {}
+       for i, addr in ipairs(speedAgachadoCache.addresses) do
+           edits[i] = {
+               address = addr,
+               flags = gg.TYPE_FLOAT,
+               value = velocidadespeed
+           }
+       end
+       gg.setValues(edits)
+       speedAgachadoCache.lastSpeed = velocidadespeed
+       gg.toast(string.format("🦇 KECEPATAN JONGKOK: %.1fx ", velocidadespeed))
+       gg.clearResults()
+       return true
+   end
+
+   -- Busca inicial
+   gg.clearResults()
+   gg.searchNumber(speedAgachadoCache.lastTarget, gg.TYPE_FLOAT)
+   
+   local results = gg.getResults(5000)
+   if #results == 0 then
+       gg.toast("❌ NILAI DASAR TIDAK DITEMUKAN!")
+       return false
+   end
+
+   -- Armazena endereços (offset -72)
+   speedAgachadoCache.addresses = {}
+   for i, result in ipairs(results) do
+       speedAgachadoCache.addresses[i] = result.address - 72
+   end
+
+   -- Aplica as edições
+   local edits = {}
+   for i, addr in ipairs(speedAgachadoCache.addresses) do
+       edits[i] = {
+           address = addr,
+           flags = gg.TYPE_FLOAT,
+           value = velocidadespeed
+       }
+   end
+   gg.setValues(edits)
+   speedAgachadoCache.lastSpeed = velocidadespeed
+   
+   gg.toast(string.format("🦇 KECEPATAN JONGKOK: %.1fx DIAKTIFKAN", velocidadespeed))
+   gg.clearResults()
+   return true
+end
+
+-- Reset de cache
+function resetSpeedAgachadoCache()
+   speedAgachadoCache.addresses = nil
+   gg.toast("🔄 RESET CACHE KECEPATAN JONGKOK")
+end
+
+function esticada()
+esticadat = gg.choice({"✔️ MENGAKTIFKAN ✔️", "❌ MENONAKTIFKAN ❌", "KEMBALI"}, nil, versao)
+
+   if esticadat == 1 then esticadaon() end
+   if esticadat == 2 then esticadaoff() end
+   if esticadat == 3 then loop(menupremium,"prin") end
+end
+
+function esticadaon()
+   gg.searchNumber("70", gg.TYPE_FLOAT)
+   gg.getResults(99999)
+   gg.editAll("120", gg.TYPE_FLOAT)
+   gg.toast("kanvas yang diregangkan ON")
+   gg.clearResults()
+end
+
+function esticadaoff()
+   gg.searchNumber("120", gg.TYPE_FLOAT)
+   gg.getResults(99999)
+   gg.editAll("70", gg.TYPE_FLOAT)
+   gg.toast("kanvas yang diregangkan OFF")
+   gg.clearResults()
+end
+
+-- ==========================================
+-- FUNÇÕES DE BUSCA
+-- ==========================================
+function buscarBasePlayer()
+    if addrX and addrY and addrZ then return true end
+    gg.clearResults()
+    gg.searchNumber(tostring(BASE), gg.TYPE_QWORD)
+    local r = gg.getResults(1000)
+    local check1, check2 = {}, {}
+    for i, v in ipairs(r) do
+        check1[i] = {address = v.address - 208, flags = gg.TYPE_QWORD}
+        check2[i] = {address = v.address - 212, flags = gg.TYPE_QWORD}
+    end
+    check1 = gg.getValues(check1)
+    check2 = gg.getValues(check2)
+    for i = 1, #check1 do
+        if check1[i].value == -4411463732228264604 and check2[i].value == -4250292608395772511 then
+            local base = check1[i].address - 108
+            addrZ = base + OZ
+            addrX = base + OX
+            addrY = base + OY
+            gg.toast("✅ Pemain dimuat")
+            return true
+        end
+    end
+    gg.toast("❌ Pemain tidak ditemukan")
+    return false
+end
 
 function carregarBasePlayer()
     gg.clearResults()
@@ -2301,6 +3106,495 @@ function obterDeslocamento()
     local distancia = math.sqrt(dx*dx + dy*dy + dz*dz)
     
     return distancia, dx, dy, dz, p2
+end
+
+-- ==========================================
+-- NOVO MOD: CAMINHAR 2M / ATRAVESSAR ILIMITADO
+-- ==========================================
+function modoToggleSpamIlimitado()
+    if not addrX and not buscarBasePlayer() then return end
+    gg.toast("🔄 FUNGSI DIAKTIFKAN! GERAKKAN KARAKTERMU.. (BUKA GG UNTUK MENJEDA))")
+    gg.setVisible(false)
+    
+    while true do
+        if gg.isVisible(true) then
+            gg.toast("🛑 PAUSE!")
+            break
+        end
+        
+        local dist, dx, dy, dz, p2 = obterDeslocamento()
+        if dist > 0.01 then
+            local metros = 4.0 
+            local novoX = p2[1].value + (dx / dist) * metros
+            local novoY = p2[2].value + (dy / dist) * metros
+            local novoZ = p2[3].value + (dz / dist) * metros
+            
+            gg.setValues({
+                {address = addrX, value = novoX, flags = gg.TYPE_FLOAT},
+                {address = addrY, value = novoY, flags = gg.TYPE_FLOAT},
+                {address = addrZ, value = novoZ, flags = gg.TYPE_FLOAT}
+            })
+        end
+        gg.sleep(40)
+    end
+end
+-- ==========================================
+-- EDIT MANUAL KOORDINAT PLAYER + SAVE ADDRESS
+-- ==========================================
+
+function getCurrentCoordinates()
+    if not addrX or not addrY or not addrZ then
+        if not buscarBasePlayer() then
+            gg.toast("❌ BASE PLAYER TIDAK DITEMUKAN!")
+            return nil
+        end
+    end
+
+    local coords = gg.getValues({
+        {address = addrX, flags = gg.TYPE_FLOAT},
+        {address = addrY, flags = gg.TYPE_FLOAT},
+        {address = addrZ, flags = gg.TYPE_FLOAT}
+    })
+
+    return {
+        x = coords[1].value,
+        y = coords[2].value,
+        z = coords[3].value,
+        addrX = addrX,
+        addrY = addrY,
+        addrZ = addrZ
+    }
+end
+
+function editManualCoordinates()
+    local pos = getCurrentCoordinates()
+    if not pos then return end
+
+    local input = gg.prompt({
+        "📍 X KORDINAT",
+        "📍 Y KORDINAT",
+        "📍 Z KORDINAT"
+    }, {
+        string.format("%.3f", pos.x),
+        string.format("%.3f", pos.y),
+        string.format("%.3f", pos.z)
+    }, {"number", "number", "number"})
+
+    if not input then return end
+
+    gg.setValues({
+        {address = pos.addrX, value = tonumber(input[1]), flags = gg.TYPE_FLOAT},
+        {address = pos.addrY, value = tonumber(input[2]), flags = gg.TYPE_FLOAT},
+        {address = pos.addrZ, value = tonumber(input[3]), flags = gg.TYPE_FLOAT}
+    })
+
+    gg.toast("✅ KOORDINAT BERHASIL DIUBAH!\nX: " .. input[1] .. "\nY: " .. input[2] .. "\nZ: " .. input[3])
+end
+
+function saveAndCopyPlayerAddress()
+    local pos = getCurrentCoordinates()
+    if not pos then return end
+
+    local info = "=== PLAYER COORDINATE ===\n" ..
+                 "X Address : " .. string.format("0x%X", pos.addrX) .. "\n" ..
+                 "Y Address : " .. string.format("0x%X", pos.addrY) .. "\n" ..
+                 "Z Address : " .. string.format("0x%X", pos.addrZ) .. "\n\n" ..
+                 "Current Pos:\n" ..
+                 "X = " .. pos.x .. "\n" ..
+                 "Y = " .. pos.y .. "\n" ..
+                 "Z = " .. pos.z
+
+    gg.copyText(info)
+    gg.alert("✅ ALAMAT KOORDINAT PLAYER DISALIN KE CLIPBOARD!\n\n" .. info)
+end
+
+-- ==========================================
+-- SISTEM SAVE POSISI PERMANEN + EXPORT / IMPORT (FIXED)
+-- ==========================================
+
+local savedPositions = {}
+local SAVED_FILE = "/storage/emulated/0/kingtirr_savedpos.txt"
+local EXPORT_FILE = "/storage/emulated/0/kingtirr_savedpos_export.txt"
+
+-- Fungsi untuk menyimpan tabel ke file (format Lua)
+-- ==========================================
+-- SAVE & LOAD PERMANEN (SUDAH DIBENARKAN)
+-- ==========================================
+
+function saveSavedPositions()
+    local file = io.open(SAVED_FILE, "w")
+    if file then
+        file:write("return {\n")
+        for i, pos in ipairs(savedPositions) do
+            local x = pos.x or 0
+            local y = pos.y or 0
+            local z = pos.z or 0
+            local safeName = pos.name:gsub('"', '\\"'):gsub('\\', '\\\\')
+            file:write(string.format('    {name = "%s", x = %.6f, y = %.6f, z = %.6f},\n', 
+                safeName, x, y, z))
+        end
+        file:write("}\n")
+        file:close()
+        gg.toast("💾 Data tersimpan permanen (" .. #savedPositions .. " posisi)")
+    end
+end
+
+function importSavedPositions()
+    local file = io.open(EXPORT_FILE, "r")
+    if not file then
+        gg.alert("❌ File export tidak ditemukan di:\n" .. EXPORT_FILE .. "\n\nExport dulu sebelum import.")
+        return
+    end
+
+    local content = file:read("*a")
+    file:close()
+
+    local imported = 0
+    -- Parsing yang lebih kuat
+    for line in content:gmatch("[^\r\n]+") do
+        local num, name = line:match("^(%d+)%.%s*(.+)")
+        if num and name then
+            -- Cari baris X, Y, Z setelahnya
+            local x = content:match(name .. ".-X%s*=%s*([%d.-]+)")
+            local y = content:match(name .. ".-Y%s*=%s*([%d.-]+)")
+            local z = content:match(name .. ".-Z%s*=%s*([%d.-]+)")
+            
+            if x and y and z then
+                table.insert(savedPositions, {
+                    name = name:gsub("^%s*(.-)%s*$", "%1"),
+                    x = tonumber(x),
+                    y = tonumber(y),
+                    z = tonumber(z)
+                })
+                imported = imported + 1
+            end
+        end
+    end
+
+    if imported > 0 then
+        saveSavedPositions()
+        gg.alert("✅ IMPORT BERHASIL!\n" .. imported .. " posisi berhasil ditambahkan")
+        gg.toast("Total posisi sekarang: " .. #savedPositions)
+    else
+        gg.alert("❌ Tidak ada data yang bisa diimport\n\nPastikan file export benar.")
+    end
+end
+
+function loadSavedPositions()
+    local file = io.open(SAVED_FILE, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        local success, data = pcall(load(content))
+        if success and type(data) == "table" then
+            savedPositions = data
+            gg.toast("✅ " .. #savedPositions .. " lokasi berhasil dimuat")
+        else
+            gg.toast("⚠️ Gagal memuat file save")
+        end
+    end
+end
+
+function exportSavedPositions()
+    if #savedPositions == 0 then
+        gg.alert("❌ Tidak ada posisi untuk diekspor!\n\nSimpan posisi dulu.")
+        return
+    end
+
+    local file = io.open(EXPORT_FILE, "w")
+    if file then
+        file:write("=== KING TIRRZ SAVED POSITIONS EXPORT ===\n")
+        file:write("Tanggal: " .. os.date("%Y-%m-%d %H:%M:%S") .. "\n")
+        file:write("Total: " .. #savedPositions .. " posisi\n\n")
+        
+        for i, pos in ipairs(savedPositions) do
+            file:write(i .. ". " .. pos.name .. "\n")
+            file:write("   X = " .. string.format("%.4f", pos.x) .. "\n")
+            file:write("   Y = " .. string.format("%.4f", pos.y) .. "\n")
+            file:write("   Z = " .. string.format("%.4f", pos.z) .. "\n\n")
+        end
+        file:close()
+        
+        gg.alert("✅ EXPORT BERHASIL!\n\nFile disimpan di:\n" .. EXPORT_FILE)
+        gg.copyText(EXPORT_FILE)
+        gg.toast("📋 Lokasi file sudah dicopy ke clipboard")
+    else
+        gg.alert("❌ Gagal membuat file export")
+    end
+end
+
+-- ==========================================
+-- SISTEM SAVE POSISI LENGKAP
+-- ==========================================
+
+function saveCurrentPosition()
+    local pos = getCurrentCoordinates()
+    if not pos then return end
+
+    local input = gg.prompt({"💾 Masukkan Nama Lokasi"}, {"Lokasi " .. (#savedPositions + 1)}, {"text"})
+    if not input or not input[1] then return end
+
+    table.insert(savedPositions, {
+        name = input[1],
+        x = pos.x,
+        y = pos.y,
+        z = pos.z
+    })
+
+    saveSavedPositions()  -- Simpan permanen
+    gg.toast("✅ POSISI DISIMPAN!\n📍 " .. input[1])
+end
+
+function teleportToSavedPosition()
+    if #savedPositions == 0 then
+        gg.alert("❌ Belum ada posisi tersimpan!")
+        return
+    end
+
+    local list = {}
+    for i, pos in ipairs(savedPositions) do
+        table.insert(list, pos.name .. " (X:" .. string.format("%.2f", pos.x) .. ")")
+    end
+    table.insert(list, "◀️ KEMBALI")
+
+    local choice = gg.choice(list, nil, "📍 TELEPORT KE POSISI TERSIMPAN")
+    if not choice or choice == #list then return end
+
+    local selected = savedPositions[choice]
+
+    if not addrZ and not buscarBasePlayer() then
+        gg.toast("❌ Base player tidak ditemukan!")
+        return
+    end
+
+    gg.setValues({
+        {address = addrX, value = selected.x, flags = gg.TYPE_FLOAT},
+        {address = addrY, value = selected.y, flags = gg.TYPE_FLOAT},
+        {address = addrZ, value = selected.z, flags = gg.TYPE_FLOAT}
+    })
+
+    gg.toast("🚀 TELEPORT KE: " .. selected.name)
+end
+
+function clearSavedPositions()
+    if gg.alert("🗑️ Hapus SEMUA posisi tersimpan?", "YA", "BATAL") == 1 then
+        savedPositions = {}
+        saveSavedPositions()
+        gg.toast("🗑️ Semua posisi telah dihapus")
+    end
+end
+
+
+-- ==========================================
+-- FUNGSI TELEPORT GPS
+-- ==========================================
+
+function teleportToPoint(point)
+    antiKick()
+    TP(point.x, point.y, point.z)
+    local yCheck = gg.getValues({{address = addrY, flags = gg.TYPE_FLOAT}})
+    if yCheck[1].value < 0 or yCheck[1].value > 3000 then
+        gg.setValues({{address = addrY, value = point.y + 5, flags = gg.TYPE_FLOAT}})
+        antiKick()
+    end
+end
+
+function menuTeleportGPS()
+    local menuList = {}
+    for i, p in ipairs(teleportPoints) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT GPS - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(teleportPoints[choice])
+end
+
+function TpUmum()
+    local menuList = {}
+    for i, p in ipairs(umum) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT UMUM - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(umum[choice])
+end
+
+function TpFraksi()
+    local menuList = {}
+    for i, p in ipairs(fraksi) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT FRAKSI - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(fraksi[choice])
+end
+
+function TpToko()
+    local menuList = {}
+    for i, p in ipairs(toko) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT TOKO - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(toko[choice])
+end
+
+function TpParkiran()
+    local menuList = {}
+    for i, p in ipairs(parkiran) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT PARKIRAN - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(parkiran[choice])
+end
+
+function TpBank()
+    local menuList = {}
+    for i, p in ipairs(bank) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT KE BANK - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(bank[choice])
+end
+
+function TpSc()
+    local menuList = {}
+    for i, p in ipairs(scooter) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT SEWA SCOOTER - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(scooter[choice])
+end
+
+function JobKerja()
+    local menuList = {}
+    for i, p in ipairs(jobkerja) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT JOB KERJA - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(jobkerja[choice])
+end
+
+function TpLadang()
+    local menuList = {}
+    for i, p in ipairs(ladang) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT LADANG PERTANIAN - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(ladang[choice])
+end
+
+function TpPenjara()
+    local menuList = {}
+    for i, p in ipairs(penjara) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT KE PENJARA - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(penjara[choice])
+end
+
+function TpKontainer()
+    local menuList = {}
+    for i, p in ipairs(kontainer) do
+        table.insert(menuList, p.name)
+    end
+    table.insert(menuList, "◀️ KEMBALI")
+
+    local choice = gg.choice(menuList, nil, "🧭 TELEPORT LELANG KONTAINER - KING TIRRZ v1.3")
+    if not choice or choice == #menuList then return end
+    
+    if choice == #menuList then 
+        menuTeleportInstan()  -- KEMBALI
+        return
+    end
+
+    teleportToPoint(kontainer[choice])
 end
 
 
@@ -2418,6 +3712,252 @@ function menu_principal()
     end
 end
 
+function menuPlayerGZ()
+    local h = gg.choice({
+        "🧬 GOD MODE",
+        "⚡ MENU SUPER",
+        "💎 MENU PREMIUM",
+        "◀️ KEMBALI"
+    }, nil, "👽 MENU PEMAIN")
+
+    if h == 1 then
+        menuImortalidade()
+    elseif h == 2 then
+        menuSpeed()
+    elseif h == 3 then
+        MenuPremium2()
+    elseif h == 4 then
+        menu_principal()
+    end
+end
+
+function menuTeleportInstan()
+    local instan = gg.choice({
+        "⚡ TP INSTAN MAP",
+        "🌍 TP LOKASI TETAP",
+        "⚙️ TELEPORT MANUAL",
+        "◀️ KEMBALI"
+    }, nil, "🔥 TELEPORT INSTAN")
+
+    if instan == 1 then
+        menuTeleporte()
+    elseif instan == 2 then
+        teleport_1()
+    elseif instan == 3 then
+        menuManual()
+    elseif instan == 4 then
+        menu_principal()
+    end
+end
+
+function teleport_1()
+    local teleport = gg.choice({
+        "🧭 TELEPORT KOTA",
+        "🎯 TELEPORT UMUM",
+        "🗡️ FRAKSI",
+        "📦 JOB KERJA",
+        "🅿️ PARKIRAN",
+        "🏦 BANK",
+        "🛒 TOKO",
+        "🛵 TEMPAT SEWA SCOOTER",
+        "🪏 LADANG PERTERNAKAN",
+        "🚧 PENJARA",
+        "🪝 LELANG KONTAINER",     -- ← DIBENARKAN
+        "👨‍💻 CREATOR",
+        "◀️ KEMBALI"
+    }, nil, "🔥 " .. Criadores[1] .. " 🔥 | Rio Rise V1.3")
+
+    if teleport == 1 then
+        menuTeleportGPS()
+    elseif teleport == 2 then
+        TpUmum()
+    elseif teleport == 3 then
+        TpFraksi()
+    elseif teleport == 4 then
+        JobKerja()
+    elseif teleport == 5 then
+        TpParkiran()
+    elseif teleport == 6 then
+        TpBank()
+    elseif teleport == 7 then
+        TpToko()
+    elseif teleport == 8 then
+        TpSc()
+    elseif teleport == 9 then
+        TpLadang()
+    elseif teleport == 10 then
+        TpPenjara()
+    elseif teleport == 11 then
+        TpKontainer()
+    elseif teleport == 12 then
+        mostrarCriadores()
+    elseif teleport == 13 then
+        menu_principal()
+    end
+end
+
+
+function menuManual()
+    local manual = gg.choice({
+        "📍 EDIT MANUAL XYZ",
+        "📄 COPY XYZ PLAYER",
+        "💾 SAVE POSISI SAAT INI",
+        "🔙 TELEPORT KE SAVED POSISI",
+        "🗑️ HAPUS SEMUA SAVED",
+        "📤 EXPORT SAVED POSISI",
+        "📥 IMPORT SAVED POSISI",
+        "👨‍💻 CREATOR",
+        "◀️ KEMBALI"
+    }, nil, "🔥 TELEPORT MANUAL - KING TIRRZ v1.3")
+
+    if manual == 1 then
+        editManualCoordinates()
+    elseif manual == 2 then
+        saveAndCopyPlayerAddress()
+    elseif manual == 3 then
+        saveCurrentPosition()
+    elseif manual == 4 then
+        teleportToSavedPosition()
+    elseif manual == 5 then
+        clearSavedPositions()
+    elseif manual == 6 then
+        exportSavedPositions()
+    elseif manual == 7 then
+        importSavedPositions()
+    elseif manual == 8 then
+        mostrarCriadores()
+    elseif manual == 9 then
+        menu_principal()
+    end
+end
+-- ==========================================
+-- FUNGSI PLAYER
+-- ==========================================
+
+vida_local = nil
+colete_local = nil
+vida_endereco = nil
+colete_endereco = nil
+
+-- ====================== SET HEALTH ======================
+function setHealth(value, freeze)
+    if value == nil then value = 999999 end
+    if freeze == nil then freeze = true end
+    
+    if vida_local == nil then
+        local vida_inf = {{99999.9921875, 0}}
+        vida_local = SearchGet("Ca", "f", vida_inf)
+    end
+    
+    if vida_local and #vida_local > 0 then
+        local vida_edit = {{value, -0x54}}
+        editGet(vida_local, vida_edit, "f")
+        vida_endereco = vida_local[1].address + 0x54  -- pastikan alamat benar
+        
+        local item = {{
+            address = vida_endereco,
+            flags = gg.TYPE_FLOAT,
+            value = value,
+            freeze = freeze
+        }}
+        
+        gg.setValues({item[1]})
+        
+        if freeze then
+            gg.addListItems(item)
+            gg.toast("❤️ DARAH TAK TERBATAS: " .. value .. " [FREEZE]")
+        else
+            gg.removeListItems(item)
+            gg.toast("❤️ DARAH DIUBAH: " .. value)
+        end
+    else
+        gg.toast("❌ GAGAL MENCARI ALAMAT DARAH")
+        vida_local = nil  -- reset untuk percobaan ulang
+    end
+end
+
+-- ====================== SET ARMOR ======================
+function setArmor(value, freeze)
+    if value == nil then value = 999999 end
+    if freeze == nil then freeze = true end
+    
+    if colete_local == nil then
+        local colete_inf = {{99999.9921875, 0}}
+        colete_local = SearchGet("Ca", "f", colete_inf)
+    end
+    
+    if colete_local and #colete_local > 0 then
+        local colete_edit = {{value, -0x4C}}
+        editGet(colete_local, colete_edit, "f")
+        colete_endereco = colete_local[1].address + 0x4C
+        
+        local item = {{
+            address = colete_endereco,
+            flags = gg.TYPE_FLOAT,
+            value = value,
+            freeze = freeze
+        }}
+        
+        gg.setValues({item[1]})
+        
+        if freeze then
+            gg.addListItems(item)
+            gg.toast("🛡️ ROMPI TAK TERBATAS: " .. value .. " [FREEZE]")
+        else
+            gg.removeListItems(item)
+            gg.toast("🛡️ ROMPI DIUBAH: " .. value)
+        end
+    else
+        gg.toast("❌ GAGAL MENCARI ALAMAT ROMPI")
+        colete_local = nil
+    end
+end
+
+-- ====================== MENU (sudah oke, sedikit diperbaiki) ======================
+function menuImortalidade()
+    local m = gg.choice({
+        "🧬 DARAH TAK TERBATAS + FREEZE",
+        "🛡️ ROMPI TAK TERBATAS + FREEZE",
+        "❤️ Darah 80",
+        "❤️ Darah 100",
+        "❤️ Darah 200",
+        "🛡️ Rompi 80",
+        "🛡️ Rompi 100",
+        "🛡️ Rompi 200",
+        "⚙️ Custom Value",
+        "◀️ KEMBALI"
+    }, nil, "🔥 GOD MODE - KING TIRRZ")
+
+    if m == 1 then
+        setHealth(36272829202481, true)
+    elseif m == 2 then
+        setArmor(36272829202481, true)
+    elseif m == 3 then
+        setHealth(80, false)
+    elseif m == 4 then
+        setHealth(100, false)
+    elseif m == 5 then
+        setHealth(200, false)
+    elseif m == 6 then
+        setArmor(80, false)
+    elseif m == 7 then
+        setArmor(100, false)
+    elseif m == 8 then
+        setArmor(200, false)
+    elseif m == 9 then
+        local input = gg.prompt({"❤ Masukkan Nilai Darah / Rompi"}, {"999999"}, {"number"})
+        if input and input[1] then
+            local val = tonumber(input[1])
+            if val then
+                setHealth(val, false)
+                setArmor(val, false)
+            end
+        end
+    elseif m == 10 then 
+        menu_principal() 
+    end
+end
+
 -- ================== MENU AUTO FARM ==================
 
 gg.setVisible(false)
@@ -2442,8 +3982,25 @@ if not baseLoaded then
     gg.alert("⚠️ Base Player tidak ditemukan!\nFitur Teleport mungkin lambat.")
 end
 
+-- 2. Preload Kecepatan Lari (Lari Kencang)
+gg.toast("🏃 Preload Lari Kencang...")
+if speedWalkCache == nil then
+    speedWalkCache = { addresses = nil, lastTarget = "..." } -- ganti dengan nilai target yang benar
+end
+if speedWalkCache.addresses == nil then
+    gg.clearResults()
+    gg.searchNumber(speedWalkCache.lastTarget, gg.TYPE_FLOAT)
+    local results = gg.getResults(1500)
+    if #results > 0 then
+        speedWalkCache.addresses = {}
+        for i, res in ipairs(results) do
+            speedWalkCache.addresses[i] = res.address - 36
+        end
+    end
+    gg.clearResults()
+end
 
-gg.toast("✅ SELESAI - Fitur siap!")
+gg.toast("✅ PRELOAD SELESAI - Fitur siap!")
 gg.sleep(400)
 
 -- ==========================================
