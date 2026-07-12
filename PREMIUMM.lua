@@ -11,6 +11,7 @@ local senhasValidas = {
     ["TIRR18"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["SONETA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["VINCEN"] = {usuario = "PREMIUM", dispositivos = "1", criado = "12/07/2026 H05:00", ano = 2026, mes = 7, dia = 19, hora = 05, min = 50},
+    ["OLIVIA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "12/07/2026 H05:00", ano = 2026, mes = 7, dia = 13, hora = 15, min = 25},
     ["MARSEL"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["SKUTS"] = {usuario = "PREMIUM", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 2026, mes = 7, dia = 12, hora = 18, min = 50},
     ["NICOL"] = {usuario = "PREMIUM", dispositivos = "1", criado = "11/07/2026 H18:30", ano = 2026, mes = 7, dia = 18, hora = 18, min = 50},
