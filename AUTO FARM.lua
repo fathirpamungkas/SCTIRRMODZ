@@ -3698,6 +3698,7 @@ function menu_principal()
 
     local mainMenu = gg.choice({
         "💸 MENU AUTO FARM",
+        "🚗 SPEED KENDARAAN",
         "👨‍💻 CREATOR",
         "❌ KELUAR"
     }, nil, "🔥 " .. Criadores[1] .. " 🔥 | Rio Rise V1.3\n\n" ..
@@ -3706,8 +3707,10 @@ function menu_principal()
         if mainMenu == 1 then
         menuFarm()
         elseif mainMenu == 2 then
-        mostrarCriadores()
+        Menu_vehicle()
         elseif mainMenu == 3 then
+        mostrarCriadores()
+        elseif mainMenu == 4 then
         sair()
     end
 end
