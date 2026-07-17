@@ -26,7 +26,7 @@ local senhasValidas = {
     ["KIRIAN12"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 18, hora = 08, min = 20},
     ["OKE232"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 24, hora = 08, min = 20},
     ["BROKBRIK"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 18, hora = 9, min = 31},
-    ["BANDIT"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 13, min = 00},
+    ["WELJAM"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 18, hora = 11, min = 26},
     ["ROXIO"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
 }
 -- ======================================================
