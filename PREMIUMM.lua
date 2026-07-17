@@ -8,7 +8,7 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    ["TIRR18"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
+    ["TIRR20"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["SONETA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["WEYY13"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 14, hora = 12, min = 00},
     ["DAFFA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 17, hora = 17, min = 20},
@@ -1418,7 +1418,7 @@ function executarFarmFazendaBlabeidi(rota, velocidade, tempoEspera, distMinima)
             elseif escolha == 2 then
                 checkpointAtualFazenda = checkpointAtualFazenda + 1
                 if checkpointAtualFazenda > #rota then checkpointAtualFazenda = 1 end
-                gg.toast("⏭️ Pulando para ponto " .. checkpointAtualFazenda)
+                gg.toast("⏭️ SKIP " .. checkpointAtualFazenda)
             elseif escolha == 3 then
                 gg.alert(
                     "📊 STATISTIK\n\n" ..
@@ -2694,7 +2694,7 @@ function autoRun()
     if escolha == 1 then Sprint()
     elseif escolha == 2 then sairDaPrisaoBot()
     elseif escolha == 3 then MenuPremium2()
-    elseif escolha == 4 then menu_principal()
+    elseif escolha == 4 then MenuPremium2()
     end
 end
 
@@ -2733,7 +2733,7 @@ function menuTeleporte()
             local destino = locais[subEscolha]
             TP(destino[2], destino[3], destino[4])
         end
-        elseif escolha == 4 then menu_principal()
+        elseif escolha == 4 then menuTeleportInstan()
     end
 end
 -- ==========================================
@@ -3807,7 +3807,7 @@ function teleport_1()
     elseif teleport == 12 then
         mostrarCriadores()
     elseif teleport == 13 then
-        menu_principal()
+        menuTeleportInstan()
     end
 end
 
@@ -3842,7 +3842,7 @@ function menuManual()
     elseif manual == 8 then
         mostrarCriadores()
     elseif manual == 9 then
-        menu_principal()
+        menuTeleportInstan()
     end
 end
 -- ==========================================
@@ -3969,7 +3969,7 @@ function menuImortalidade()
             end
         end
     elseif m == 10 then 
-        menu_principal() 
+        menuPlayerGZ() 
     end
 end
 
