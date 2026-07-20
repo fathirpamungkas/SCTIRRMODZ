@@ -23,6 +23,7 @@ local senhasValidas = {
     ["HIMAWAN"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H08:00", ano = 2026, mes = 7, dia = 17, hora = 04, min = 30},
     ["AGUNG"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 14, hora = 22, min = 00},
     ["FUNIX"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 12, hora = 10, min = 00},
+    ["IQBAL"] = {usuario = "PREMIUM", dispositivos = "1", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 21, hora = 9, min = 11},
     ["KIRIAN12"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 18, hora = 08, min = 20},
     ["OKE232"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 24, hora = 08, min = 20},
     ["BROKBRIK"] = {usuario = "PREMIUM", dispositivos = "0", criado = "01/01/2026 H00:00", ano = 2026, mes = 7, dia = 18, hora = 9, min = 31},
