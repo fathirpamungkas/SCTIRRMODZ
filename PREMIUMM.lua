@@ -9,6 +9,7 @@ gg.sleep(300)
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
     ["TIRR20"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
+    ["ALDO"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["SONETA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
     ["WEYY13"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 14, hora = 12, min = 00},
     ["DAFFA"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 17, hora = 17, min = 20},
@@ -79,7 +80,7 @@ function realizarLogin()
             -- Alerta personalizado mostrando as informações da key usada
             gg.alert(" 👤 PENGGUNA: " .. dadosSenha.usuario .. 
                      "\n 🔑 KEY: " .. senhaDigitada .. 
-                     "\n 💻 PERANGKAT: " .. dadosSenha.dispositivos .. 
+                     "\n 💻 DEVICES: " .. dadosSenha.dispositivos .. 
                      "\n 📆 DIBUAT: " .. dadosSenha.criado .. 
                      "\n 📆 BERAKHIR: " .. dataExpiraFormatada .. " \n")
                      
