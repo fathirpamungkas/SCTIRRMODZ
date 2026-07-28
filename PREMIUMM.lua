@@ -344,61 +344,10 @@ function maintenance()
     )
 end
 
-function menuVeiculos()
-   local veiculosMenu = gg.choice({
-       "🚗 Aim Kill (Anda membutuhkan kendaraan.) 🚗",
-       "🚗 Infinite Bodywork (Harus terpasang di dalam kendaraan)) 🚗",
-       "🚗 Mengalami kerusakan kendaraan (Harus berada di dalam kendaraan)) 🚗",
-       "🚗💨 Kendaraan Kecepatan 🚗💨",
-       "《↩️》Kembali"
-   }, nil, "🚗 MENU KENDARAAN 🚗")
-
-   if veiculosMenu == 1 then aimkillcarro() end
-   if veiculosMenu == 2 then latariainf() end
-   if veiculosMenu == 3 then quebrarveiculo() end
-   if veiculosMenu == 4 then SpeedHackGamer() end
-   if veiculosMenu == 5 then menu_principal() end
-end
-
--- ==========================================
--- FUNÇÃO LIGA MOTO
--- ==========================================
-function LigaMotoOn()
-    gg.clearResults()
-    gg.searchNumber("1.0", gg.TYPE_FLOAT)
-    local res = gg.getResults(2000)
-    for i, v in ipairs(res) do
-        gg.setValues({{address = v.address + 0x10, flags = gg.TYPE_FLOAT, value = 999999}})
-    end
-    gg.toast("🏍️ Liga Moto DIAKTIFKAN")
-end
-
--- ==========================================
--- FUNÇÃO AIM KILL
--- ==========================================
-function AimKillMenu()
-    local menu = gg.choice({"AKTIFKAN", "NONAKTIFKAN", "KEMBALI"}, nil, "🎯 AIM KILL")
-    if menu == 1 then
-        gg.clearResults()
-        gg.searchNumber("0.05999999866", gg.TYPE_FLOAT)
-        gg.getResults(500)
-        gg.editAll("0", gg.TYPE_FLOAT)
-        gg.toast("🎯 Aim Kill AKTIF")
-    elseif menu == 2 then
-        gg.clearResults()
-        gg.searchNumber("0", gg.TYPE_FLOAT)
-        gg.getResults(500)
-        gg.editAll("0.05999999866", gg.TYPE_FLOAT)
-        gg.toast("❌ Aim Kill NONAKTIF")
-    end
-end
-
 function MenuPremium2()
     local statusSpeed = active and "on" or "off"
     local escolha = gg.choice({
         "🏃 AUTO RUN",
-        "🎯 AIM KILL",
-        "🏍️ LIGA MOTOR",
         "📷 ZOOM CAMERA ",
         "👽 BLINK TP",
         "📢 TEMBUS TEMBOK",
@@ -2688,7 +2637,6 @@ function autoRun()
     if escolha == 1 then Sprint()
     elseif escolha == 2 then sairDaPrisaoBot()
     elseif escolha == 3 then MenuPremium2()
-    elseif escolha == 4 then MenuPremium2()
     end
 end
 
@@ -3938,9 +3886,9 @@ function menuImortalidade()
     }, nil, "🔥 GOD MODE - KING TIRRZ")
 
     if m == 1 then
-        setHealth(36272829202481, true)
+        setHealth(100, true)
     elseif m == 2 then
-        setArmor(36272829202481, true)
+        setArmor(100, true)
     elseif m == 3 then
         setHealth(80, false)
     elseif m == 4 then
