@@ -8,12 +8,12 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    ["TIRR20"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
-    ["ALDO"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
-    ["SONETA"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
-    ["MARSEL"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 2028, mes = 7, dia = 20, hora = 10, min = 00},
-    ["SKUTSS"] = {usuario = "PERMANENT", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 2028, mes = 7, dia = 12, hora = 18, min = 50},
-    ["DIMAS523"] = {usuario = "PERMANENT", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 2028, mes = 7, dia = 12, hora = 18, min = 50},
+    ["TIRR20"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
+    ["ALDO"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
+    ["SONETA"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
+    ["MARSEL"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
+    ["SKUTSS"] = {usuario = "PERMANENT", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 9999, mes = 7, dia = 12, hora = 18, min = 50},
+    ["DIMAS523"] = {usuario = "PERMANENT", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 9999, mes = 7, dia = 12, hora = 18, min = 50},
     ["SAIFUL"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 28, hora = 17, min = 05},
     ["IDOO"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 30, hora = 17, min = 05},
     ["BELBEL"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 7, dia = 30, hora = 19, min = 54},
