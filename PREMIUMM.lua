@@ -3886,9 +3886,9 @@ function menuImortalidade()
     }, nil, "🔥 GOD MODE - KING TIRRZ")
 
     if m == 1 then
-        setHealth(100, true)
+        setHealth(36272829202481, true)
     elseif m == 2 then
-        setArmor(100, true)
+        setArmor(36272829202481, true)
     elseif m == 3 then
         setHealth(80, false)
     elseif m == 4 then
