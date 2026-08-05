@@ -358,12 +358,10 @@ function MenuPremium2()
     }, nil, "💎 MENU PREMIUM")
 
     if escolha == 1 then autoRun()
-    elseif escolha == 2 then AimKillMenu()
-    elseif escolha == 3 then LigaMotoOn()
-    elseif escolha == 4 then esticada()
-    elseif escolha == 5 then modoToggleSpamIlimitado()
-    elseif escolha == 6 then WallHackMenu()
-    elseif escolha == 7 then menu_principal()
+    elseif escolha == 2 then esticada()
+    elseif escolha == 3 then modoToggleSpamIlimitado()
+    elseif escolha == 4 then WallHackMenu()
+    elseif escolha == 5 then menu_principal()
     end
 end
 
