@@ -17,7 +17,7 @@ local senhasValidas = {
     ["SHONAN28"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 9, hora = 13, min = 30},
     ["tgd442jm74"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 10, hora = 12, min = 01},
     ["rtm1423"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 9, dia = 9, hora = 14, min = 30},
-    ["NANZZ"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 9, hora = 19, min = 30},
+    ["mundir"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 12, hora = 00, min = 15},
     ["teri1"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 10, hora = 10, min = 00},
     ["DLUCA"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
 }
