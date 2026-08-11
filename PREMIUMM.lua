@@ -118,16 +118,6 @@ local checkpointAtualMina = 1
 local ciclosMina = 0
 local coletasMina = 0
 
-local rotaPadraoMinaBlabeidi = {
-    {nome = "🚪 POSISI 1", x = 19.4, y = 1012.2, z = 859.3},
-    {nome = "🔄 KORIDOR 1", x = 21.1, y = 1012.1, z = 833.7},
-    {nome = "⛏️ POSISI 3", x = 23.2, y = 1009.6, z = 807.9},
-    {nome = "💎 POSISI 4", x = 25.5, y = 1008.3, z = 785.2},
-    {nome = "💎 JUAL", x = 27.8, y = 1007.8, z = 765.4},
-    {nome = "🔄 KEMBALI", x = 23.0, y = 1010.0, z = 810.0},
-    {nome = "🚪 KELUAR", x = 19.4, y = 1012.2, z = 859.3}
-}
-
 local pontoSeguroMina = {x = 19.4, y = 1050.0, z = 859.3}
 
 local enderecosY_Onibus = {}
@@ -1693,69 +1683,147 @@ function executarFarmMinaBlabeidi(rota, velocidade, tempoEspera, distMinima)
     return true
 end
 
+-- =============================================
+-- RUTE DEFAULT AWAL (HARDCODED, SEBAGAI CADANGAN)
+-- =============================================
+local RUTE_DEFAULT_INICIAL = {
+    {nome = "🚪 POSISI 1", x = 19.4, y = 1012.2, z = 859.3},
+    {nome = "🔄 KORIDOR 1", x = 21.1, y = 1012.1, z = 833.7},
+    {nome = "⛏️ POSISI 3", x = 23.2, y = 1009.6, z = 807.9},
+    {nome = "💎 POSISI 4", x = 25.5, y = 1008.3, z = 785.2},
+    {nome = "💎 JUAL", x = 27.8, y = 1007.8, z = 765.4},
+    {nome = "🔄 KEMBALI", x = 23.0, y = 1010.0, z = 810.0},
+    {nome = "🚪 KELUAR", x = 19.4, y = 1012.2, z = 859.3}
+}
+
+-- Nama file untuk menyimpan rute default
+local NOME_ARQUIVO_DEFAULT = "rotaDefaultMinaBlabeidi"
+
+-- =============================================
+-- FUNGSI UNTUK MEMUAT RUTE DEFAULT DARI FILE
+-- =============================================
+local function carregarRotaDefault()
+    local sucesso, dados = pcall(gg.loadVariable, NOME_ARQUIVO_DEFAULT)
+    if sucesso and dados and type(dados) == "table" and #dados > 0 then
+        return dados
+    else
+        -- Jika gagal muat, gunakan hardcoded sebagai cadangan
+        return RUTE_DEFAULT_INICIAL
+    end
+end
+
+-- =============================================
+-- FUNGSI UNTUK MENYIMPAN RUTE DEFAULT KE FILE
+-- =============================================
+local function salvarRotaDefault(rota)
+    if not rota or #rota == 0 then return false end
+    local sucesso, err = pcall(gg.saveVariable, rota, NOME_ARQUIVO_DEFAULT)
+    if sucesso then
+        return true
+    else
+        gg.toast("❌ GAGAL MENYIMPAN DEFAULT: " .. tostring(err))
+        return false
+    end
+end
+
+-- =============================================
+-- FUNGSI MENYALIN RUTE (DEEP COPY)
+-- =============================================
+local function copiarRota(origem)
+    local nova = {}
+    for i, ponto in ipairs(origem) do
+        table.insert(nova, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
+    end
+    return nova
+end
+
+-- =============================================
+-- INISIALISASI RUTE DEFAULT DAN RUTE AKTIF
+-- =============================================
+-- Muat rute default dari file (atau gunakan hardcoded)
+local rotaPadraoMinaBlabeidi = carregarRotaDefault()
+
+-- Rute aktif saat ini (awalnya disalin dari default)
+local rotaMinaBlabeidi = copiarRota(rotaPadraoMinaBlabeidi)
+
+-- =============================================
+-- MENU UTAMA
+-- =============================================
 function menuFarmMinaBlabeidi()
     local opcao = gg.choice({
         "🆕 REKAM RUTE BARU",
         "📋 MUAT RUTE DEFAULT",
+        "💾 SIMPAN RUTE SAAT INI SEBAGAI DEFAULT",
         "▶️ MEMULAI PERTAMBANGAN",
         "⏹️ BERHENTI MENAMBANG",
         "📊 LIHAT RUTE SAAT INI",
-        "💾 SIMPAN RUTE DEFAULT",   -- opsi baru
         "↩️ KEMBALI"
     }, nil, "⛏️ FARM TAMBANG 2")
     
     if opcao == 1 then
-        local novaRota = gravarRotaMinaBlabeidi()
+        local novaRota = gravarRotaMinaBlabeidi() -- asumsikan fungsi ini ada
         if novaRota then
             rotaMinaBlabeidi = novaRota
             gg.toast("✅ RUTE TERSIMPAN DENGAN " .. #rotaMinaBlabeidi .. " LOKASI!")
+            local simpan = gg.alert("Ingin menyimpan rute ini sebagai DEFAULT?", "Ya", "Tidak")
+            if simpan == 1 then
+                if salvarRotaDefault(rotaMinaBlabeidi) then
+                    rotaPadraoMinaBlabeidi = copiarRota(rotaMinaBlabeidi)
+                    gg.toast("✅ DEFAULT BERHASIL DISIMPAN KE FILE!")
+                end
+            end
         end
         
     elseif opcao == 2 then
-        rotaMinaBlabeidi = {}
-        for i, ponto in ipairs(rotaPadraoMinaBlabeidi) do
-            table.insert(rotaMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
-        end
-        gg.toast("✅ RUTE STANDAR YANG DIISI DENGAN " .. #rotaMinaBlabeidi .. " LOKASI!")
+        -- Muat rute default dari file (terbaru)
+        rotaPadraoMinaBlabeidi = carregarRotaDefault()
+        rotaMinaBlabeidi = copiarRota(rotaPadraoMinaBlabeidi)
+        gg.toast("✅ RUTE DEFAULT DIMUAT DENGAN " .. #rotaMinaBlabeidi .. " LOKASI!")
         
     elseif opcao == 3 then
-        if #rotaMinaBlabeidi < 2 then
-            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+        if #rotaMinaBlabeidi == 0 then
+            gg.alert("❌ TIDAK ADA RUTE AKTIF UNTUK DISIMPAN!")
             return
         end
+        if salvarRotaDefault(rotaMinaBlabeidi) then
+            rotaPadraoMinaBlabeidi = copiarRota(rotaMinaBlabeidi)
+            gg.toast("✅ DEFAULT BERHASIL DISIMPAN KE FILE!")
+        end
         
+    elseif opcao == 4 then
+        if #rotaMinaBlabeidi < 2 then
+            gg.alert("❌ RUTE KOSONG ATAU KURANG DARI 2 LOKASI!")
+            return
+        end
         local config = gg.prompt({
             "⚡ KECEPATAN:",
-            "⏱️ WAKTU TUNGGU (DETIK)):",
+            "⏱️ WAKTU TUNGGU (DETIK):",
             "📏 JARAK MINIMUM:"
         }, {
             tostring(SPEED_MINA),
             tostring(TEMPO_ESPERA_PADRAO),
             tostring(DIST_MIN)
         }, {"number", "number", "number"})
-        
         if config then
             local velocidade = tonumber(config[1]) or SPEED_MINA
             local tempoEspera = tonumber(config[2]) or TEMPO_ESPERA_PADRAO
             local distMinima = tonumber(config[3]) or DIST_MIN
-            
             executarFarmMinaBlabeidi(rotaMinaBlabeidi, velocidade, tempoEspera, distMinima)
         end
         
-    elseif opcao == 4 then
+    elseif opcao == 5 then
         if farmMinaBlabeidiAtivo then
             farmMinaBlabeidiAtivo = false
-            gg.toast("⏹️ PERTANIAN MINA BLABEIDI BERHENTI!")
+            gg.toast("⏹️ PERTANIAN BERHENTI!")
         else
-            gg.toast("📴 TIDAK ADA KEGIATAN PERTANIAN")
+            gg.toast("📴 TIDAK ADA PERTANIAN BERJALAN")
         end
         
-    elseif opcao == 5 then
+    elseif opcao == 6 then
         if #rotaMinaBlabeidi == 0 then
-            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
+            gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI!")
             return
         end
-        
         local texto = "📋 RUTE SAAT INI - TAMBANG\n\n"
         for i, ponto in ipairs(rotaMinaBlabeidi) do
             texto = texto .. string.format(
@@ -1764,27 +1832,7 @@ function menuFarmMinaBlabeidi()
             )
         end
         gg.alert(texto, "OK")
-        
-    elseif opcao == 6 then
-        -- SIMPAN RUTE DEFAULT
-        if #rotaMinaBlabeidi == 0 then
-            gg.alert("❌ TIDAK ADA RUTE UNTUK DISIMPAN!")
-            return
-        end
-        
-        -- Kosongkan dan salin rute saat ini ke default
-        rotaPadraoMinaBlabeidi = {}
-        for i, ponto in ipairs(rotaMinaBlabeidi) do
-            table.insert(rotaPadraoMinaBlabeidi, {
-                x = ponto.x,
-                y = ponto.y,
-                z = ponto.z,
-                nome = ponto.nome
-            })
-        end
-        gg.toast("✅ RUTE DEFAULT TELAH DIPERBAHARUI DENGAN " .. #rotaPadraoMinaBlabeidi .. " LOKASI!")
     end
-    -- opcao == 7 adalah KEMBALI, tidak perlu aksi
 end
 
 -- ==========================================
