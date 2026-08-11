@@ -1687,29 +1687,26 @@ end
 -- VARIABEL GLOBAL (asumsikan sudah didefinisikan)
 -- ============================================
 rotaMinaBlabeidi = {}              -- rute aktif saat ini
-rotaPadraoMinaBlabeidi = {         -- rute default bawaan (hardcoded)
-    -- contoh: {x=0, y=0, z=0, nome="Titik A"},
-    -- ...
-}
-SPEED_MINA = 100
-TEMPO_ESPERA_PADRAO = 1
+rotaPadraoMinaBlabeidi = {}        -- cadangan hardcoded (opsional)
+SPEED_MINA = 29
+TEMPO_ESPERA_PADRAO = 6
 DIST_MIN = 1.5
 farmMinaBlabeidiAtivo = false
 
--- ============================================
--- FUNGSI UNTUK MENYIMPAN & MEMUAT RUTE DEFAULT
--- ============================================
-local ARQUIVO_DEFAULT = "mina_blabeidi_default.txt"
+-- File penyimpanan default
+local ARQUIVO_DEFAULT = "/storage/emulated/0/mina_blabeidi_default.txt"
 
+-- ============================================
+-- FUNGSI MENYIMPAN RUTE SEBAGAI DEFAULT
+-- ============================================
 function salvarRotaPadrao()
     if #rotaMinaBlabeidi < 2 then
         gg.alert("❌ Rute saat ini tidak valid (minimal 2 titik).")
         return false
     end
-    -- Simpan ke file
     local sukses = gg.saveVariable(rotaMinaBlabeidi, ARQUIVO_DEFAULT)
     if sukses then
-        -- Perbarui juga variabel default di memori
+        -- Perbarui variabel default di memori
         rotaPadraoMinaBlabeidi = {}
         for i, ponto in ipairs(rotaMinaBlabeidi) do
             table.insert(rotaPadraoMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
@@ -1722,27 +1719,24 @@ function salvarRotaPadrao()
     end
 end
 
+-- ============================================
+-- FUNGSI MEMUAT RUTE DARI FILE (LOAD YANG DISIMPAN)
+-- ============================================
 function carregarRotaPadrao()
-    -- Coba muat dari file
     local dados = gg.loadVariable(ARQUIVO_DEFAULT)
     if dados and type(dados) == "table" and #dados >= 2 then
         rotaMinaBlabeidi = {}
         for i, ponto in ipairs(dados) do
             table.insert(rotaMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
         end
-        -- Perbarui juga variabel default bawaan
+        -- Perbarui juga variabel default bawaan (opsional)
         rotaPadraoMinaBlabeidi = {}
         for i, ponto in ipairs(rotaMinaBlabeidi) do
             table.insert(rotaPadraoMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
         end
-        gg.toast("✅ Rute default dimuat dari penyimpanan (" .. #rotaMinaBlabeidi .. " titik)")
+        gg.toast("✅ Rute dimuat dari penyimpanan (" .. #rotaMinaBlabeidi .. " titik)")
     else
-        -- Jika file tidak ada, gunakan hardcoded default
-        rotaMinaBlabeidi = {}
-        for i, ponto in ipairs(rotaPadraoMinaBlabeidi) do
-            table.insert(rotaMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
-        end
-        gg.toast("✅ Rute default bawaan dimuat (" .. #rotaMinaBlabeidi .. " titik)")
+        gg.alert("❌ Belum ada rute yang disimpan.\nSilakan rekam atau simpan rute terlebih dahulu.")
     end
 end
 
@@ -1752,33 +1746,35 @@ end
 function menuFarmMinaBlabeidi()
     local opcao = gg.choice({
         "🆕 REKAM RUTE BARU",
-        "📋 MUAT RUTE DEFAULT",
-        "💾 SIMPAN RUTE DEFAULT",   -- <-- OPSI BARU
+        "📋 LOAD RUTE YANG DISIMPAN",   -- <-- NAMA DIUBAH
+        "💾 SIMPAN RUTE DEFAULT",
         "▶️ MEMULAI PERTAMBANGAN",
         "⏹️ BERHENTI MENAMBANG",
         "📊 LIHAT RUTE SAAT INI",
         "↩️ KEMBALI"
     }, nil, "⛏️ FARM TAMBANG 2")
-    
+
     if opcao == 1 then
         local novaRota = gravarRotaMinaBlabeidi()
         if novaRota then
             rotaMinaBlabeidi = novaRota
             gg.toast("✅ RUTE TERSIMPAN DENGAN " .. #rotaMinaBlabeidi .. " LOKASI!")
         end
-        
+
     elseif opcao == 2 then
-        carregarRotaPadrao()   -- memuat dari file atau hardcoded
-        
+        -- Memuat rute yang disimpan (hanya dari file)
+        carregarRotaPadrao()
+
     elseif opcao == 3 then
-        salvarRotaPadrao()     -- simpan rute saat ini sebagai default
-        
+        -- Menyimpan rute saat ini sebagai default (menimpa yang lama)
+        salvarRotaPadrao()
+
     elseif opcao == 4 then
         if #rotaMinaBlabeidi < 2 then
             gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
             return
         end
-        
+
         local config = gg.prompt({
             "⚡ KECEPATAN:",
             "⏱️ WAKTU TUNGGU (DETIK)):",
@@ -1788,15 +1784,15 @@ function menuFarmMinaBlabeidi()
             tostring(TEMPO_ESPERA_PADRAO),
             tostring(DIST_MIN)
         }, {"number", "number", "number"})
-        
+
         if config then
             local velocidade = tonumber(config[1]) or SPEED_MINA
             local tempoEspera = tonumber(config[2]) or TEMPO_ESPERA_PADRAO
             local distMinima = tonumber(config[3]) or DIST_MIN
-            
+
             executarFarmMinaBlabeidi(rotaMinaBlabeidi, velocidade, tempoEspera, distMinima)
         end
-        
+
     elseif opcao == 5 then
         if farmMinaBlabeidiAtivo then
             farmMinaBlabeidiAtivo = false
@@ -1804,13 +1800,13 @@ function menuFarmMinaBlabeidi()
         else
             gg.toast("📴 TIDAK ADA KEGIATAN PERTANIAN")
         end
-        
+
     elseif opcao == 6 then
         if #rotaMinaBlabeidi == 0 then
             gg.alert("❌ TIDAK ADA RUTE YANG DIKONFIGURASI.!")
             return
         end
-        
+
         local texto = "📋 RUTE SAAT INI - TAMBANG\n\n"
         for i, ponto in ipairs(rotaMinaBlabeidi) do
             texto = texto .. string.format(
@@ -1819,13 +1815,13 @@ function menuFarmMinaBlabeidi()
             )
         end
         gg.alert(texto, "OK")
+
+    elseif opcao == 7 then
+        -- Kembali ke menu sebelumnya (opsional)
+        -- Panggil menu utama jika ada
     end
 end
 
--- ============================================
--- (Fungsi gravarRotaMinaBlabeidi dan executarFarmMinaBlabeidi
---  tetap seperti sebelumnya, tidak diubah)
--- ============================================
 
 -- ==========================================
 -- FARM FAZENDA EMBAIXO DA TERRA (7 CHECKPOINTS + SUBIDA)
