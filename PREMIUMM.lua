@@ -8,7 +8,7 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    ["TIRR1805"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
+    ["tir"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["ALDO"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["SONETA"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["MARSEL"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
@@ -1511,7 +1511,7 @@ function gravarRotaMinaBlabeidi()
         "4️⃣ Klik 'SELESAI' setelah selesai.\n\n" ..
         "📌 Minimal: Diperlukan 2 poin.\n" ..
         "🛡️ ANTI-KICK AKTIF!",
-        "ENTENDIDO"
+        "DIPAHAMI"
     )
     
     local rotaGravada = {}
@@ -1700,6 +1700,7 @@ function menuFarmMinaBlabeidi()
         "▶️ MEMULAI PERTAMBANGAN",
         "⏹️ BERHENTI MENAMBANG",
         "📊 LIHAT RUTE SAAT INI",
+        "💾 SIMPAN RUTE DEFAULT",   -- opsi baru
         "↩️ KEMBALI"
     }, nil, "⛏️ FARM TAMBANG 2")
     
@@ -1763,7 +1764,27 @@ function menuFarmMinaBlabeidi()
             )
         end
         gg.alert(texto, "OK")
+        
+    elseif opcao == 6 then
+        -- SIMPAN RUTE DEFAULT
+        if #rotaMinaBlabeidi == 0 then
+            gg.alert("❌ TIDAK ADA RUTE UNTUK DISIMPAN!")
+            return
+        end
+        
+        -- Kosongkan dan salin rute saat ini ke default
+        rotaPadraoMinaBlabeidi = {}
+        for i, ponto in ipairs(rotaMinaBlabeidi) do
+            table.insert(rotaPadraoMinaBlabeidi, {
+                x = ponto.x,
+                y = ponto.y,
+                z = ponto.z,
+                nome = ponto.nome
+            })
+        end
+        gg.toast("✅ RUTE DEFAULT TELAH DIPERBAHARUI DENGAN " .. #rotaPadraoMinaBlabeidi .. " LOKASI!")
     end
+    -- opcao == 7 adalah KEMBALI, tidak perlu aksi
 end
 
 -- ==========================================
@@ -1869,7 +1890,7 @@ function adicionarPontoEmbaixoTerra(rota)
         nome = "🌍 PERMUKAAN TANAH (TP))"
     })
     
-    gg.toast("✅ Ponto 'EMBAIXO DA TERRA' adicionado automaticamente!")
+    gg.toast("✅ Lokasi ''UNDERGROUND' ditambahkan secara otomatis!")
     return novaRota
 end
 
