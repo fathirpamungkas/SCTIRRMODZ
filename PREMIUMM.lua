@@ -17,7 +17,7 @@ local senhasValidas = {
     ["SHONAN28"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 9, hora = 13, min = 30},
     ["tgd442jm74"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 10, hora = 12, min = 01},
     ["rtm1423"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 9, dia = 9, hora = 14, min = 30},
-    ["mundir"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 12, hora = 00, min = 15},
+    ["rendi"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 13, hora = 17, min = 15},
     ["teri1"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 10, hora = 10, min = 00},
     ["DLUCA"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
 }
@@ -1688,56 +1688,86 @@ end
 -- ============================================
 rotaMinaBlabeidi = {}              -- rute aktif saat ini
 rotaPadraoMinaBlabeidi = {}        -- cadangan hardcoded (opsional)
-SPEED_MINA = 29
+SPEED_MINA = 29.0
 TEMPO_ESPERA_PADRAO = 6
 DIST_MIN = 1.5
 farmMinaBlabeidiAtivo = false
 
--- File penyimpanan default
-local ARQUIVO_DEFAULT = "/storage/emulated/0/mina_blabeidi_default.txt"
+-- Path absolut (pastikan folder GameGuardian ada)
+local ARQUIVO_DEFAULT = "/storage/emulated/0/GameGuardian/mina_blabeidi_default.txt"
 
--- ============================================
--- FUNGSI MENYIMPAN RUTE SEBAGAI DEFAULT
--- ============================================
 function salvarRotaPadrao()
     if #rotaMinaBlabeidi < 2 then
         gg.alert("❌ Rute saat ini tidak valid (minimal 2 titik).")
         return false
     end
-    local sukses = gg.saveVariable(rotaMinaBlabeidi, ARQUIVO_DEFAULT)
-    if sukses then
-        -- Perbarui variabel default di memori
-        rotaPadraoMinaBlabeidi = {}
-        for i, ponto in ipairs(rotaMinaBlabeidi) do
-            table.insert(rotaPadraoMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
-        end
-        gg.toast("✅ Rute default berhasil disimpan (" .. #rotaMinaBlabeidi .. " titik)")
-        return true
-    else
-        gg.alert("❌ Gagal menyimpan rute default.")
+
+    local file = io.open(ARQUIVO_DEFAULT, "w")
+    if not file then
+        gg.alert("❌ Gagal membuka file untuk menulis.\nPastikan izin penyimpanan diberikan.")
         return false
     end
+
+    -- Tulis data sebagai Lua table
+    file:write("return {\n")
+    for i, ponto in ipairs(rotaMinaBlabeidi) do
+        local x = ponto.x or 0
+        local y = ponto.y or 0
+        local z = ponto.z or 0
+        local nome = (ponto.nome or "Titik "..i):gsub('"', '\\"'):gsub('\\', '\\\\')
+        file:write(string.format('    {x = %.6f, y = %.6f, z = %.6f, nome = "%s"},\n', x, y, z, nome))
+    end
+    file:write("}\n")
+    file:close()
+
+    -- Perbarui variabel default di memori
+    rotaPadraoMinaBlabeidi = {}
+    for i, ponto in ipairs(rotaMinaBlabeidi) do
+        table.insert(rotaPadraoMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
+    end
+
+    gg.toast("✅ Rute default berhasil disimpan (" .. #rotaMinaBlabeidi .. " titik)")
+    return true
 end
 
--- ============================================
--- FUNGSI MEMUAT RUTE DARI FILE (LOAD YANG DISIMPAN)
--- ============================================
 function carregarRotaPadrao()
-    local dados = gg.loadVariable(ARQUIVO_DEFAULT)
-    if dados and type(dados) == "table" and #dados >= 2 then
-        rotaMinaBlabeidi = {}
-        for i, ponto in ipairs(dados) do
-            table.insert(rotaMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
-        end
-        -- Perbarui juga variabel default bawaan (opsional)
-        rotaPadraoMinaBlabeidi = {}
-        for i, ponto in ipairs(rotaMinaBlabeidi) do
-            table.insert(rotaPadraoMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
-        end
-        gg.toast("✅ Rute dimuat dari penyimpanan (" .. #rotaMinaBlabeidi .. " titik)")
-    else
+    local file = io.open(ARQUIVO_DEFAULT, "r")
+    if not file then
         gg.alert("❌ Belum ada rute yang disimpan.\nSilakan rekam atau simpan rute terlebih dahulu.")
+        return
     end
+
+    local content = file:read("*a")
+    file:close()
+
+    local func, err = load(content)
+    if not func then
+        gg.alert("❌ Gagal memuat rute: file rusak.\n" .. err)
+        return
+    end
+
+    local success, dados = pcall(func)
+    if not success or type(dados) ~= "table" or #dados < 2 then
+        gg.alert("❌ Data rute tidak valid atau kurang dari 2 titik.")
+        return
+    end
+
+    rotaMinaBlabeidi = {}
+    for i, ponto in ipairs(dados) do
+        table.insert(rotaMinaBlabeidi, {
+            x = ponto.x or 0,
+            y = ponto.y or 0,
+            z = ponto.z or 0,
+            nome = ponto.nome or ("Titik "..i)
+        })
+    end
+
+    rotaPadraoMinaBlabeidi = {}
+    for i, ponto in ipairs(rotaMinaBlabeidi) do
+        table.insert(rotaPadraoMinaBlabeidi, {x = ponto.x, y = ponto.y, z = ponto.z, nome = ponto.nome})
+    end
+
+    gg.toast("✅ Rute dimuat dari penyimpanan (" .. #rotaMinaBlabeidi .. " titik)")
 end
 
 -- ============================================
