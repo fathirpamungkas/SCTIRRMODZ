@@ -8,7 +8,7 @@ gg.sleep(300)
 
 -- Tabela de senhas com configurações individuais
 local senhasValidas = {
-    ["tir"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
+    ["b"] = {usuario = "PREMIUM", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["ALDO"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["SONETA"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["MARSEL"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
@@ -19,7 +19,7 @@ local senhasValidas = {
     ["rtm1423"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 9, dia = 9, hora = 14, min = 30},
     ["rendi"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 13, hora = 17, min = 15},
     ["teri1"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 10, hora = 10, min = 00},
-    ["DLUCA"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
+    ["a"] = {usuario = "KELUARGA", dispositivos = "99", criado = "01/01/2026 H00:00", ano = 2027, mes = 1, dia = 1, hora = 00, min = 00}
 }
 -- ======================================================
 -- 👆👆👆👆 PAINEL SENHAS E USUÁRIO 👆👆👆👆
