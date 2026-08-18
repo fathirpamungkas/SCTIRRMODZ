@@ -14,7 +14,7 @@ local senhasValidas = {
     ["MARSEL"] = {usuario = "PERMANENT", dispositivos = "1", criado = "30/06/2026 H19:00", ano = 9999, mes = 7, dia = 20, hora = 10, min = 00},
     ["SKUTSS"] = {usuario = "PERMANENT", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 9999, mes = 7, dia = 12, hora = 18, min = 50},
     ["DIMAS523"] = {usuario = "PERMANENT", dispositivos = "1", criado = "11/07/2026 H18:34", ano = 9999, mes = 7, dia = 12, hora = 18, min = 50},
-    ["SHONAN28"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 9, hora = 13, min = 30},
+    ["yori011200"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 19, hora = 15, min = 16},
     ["febri"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 16, hora = 23, min = 20},
     ["rtm1423"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 9, dia = 9, hora = 14, min = 30},
     ["rendi"] = {usuario = "PREMIUM", dispositivos = "2", criado = "30/06/2026 H19:00", ano = 2026, mes = 8, dia = 13, hora = 17, min = 15},
